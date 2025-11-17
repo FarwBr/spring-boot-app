@@ -1,0 +1,641 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Check-in Desktop - Offline Ready</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, sans-serif;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      padding: 20px;
+      min-height: 100vh;
+    }
+
+    .container {
+      max-width: 1200px;
+      margin: 0 auto;
+    }
+
+    .header {
+      background: white;
+      border-radius: 12px;
+      padding: 20px 30px;
+      margin-bottom: 20px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+    }
+
+    .header h1 {
+      color: #333;
+      font-size: 28px;
+    }
+
+    .status-bar {
+      display: flex;
+      align-items: center;
+      gap: 15px;
+    }
+
+    .status-indicator {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 8px 16px;
+      border-radius: 20px;
+      font-weight: 600;
+      font-size: 14px;
+    }
+
+    .status-indicator.online {
+      background: #d4edda;
+      color: #155724;
+    }
+
+    .status-indicator.offline {
+      background: #f8d7da;
+      color: #721c24;
+    }
+
+    .status-dot {
+      width: 10px;
+      height: 10px;
+      border-radius: 50%;
+      animation: pulse 2s infinite;
+    }
+
+    .status-indicator.online .status-dot {
+      background: #28a745;
+    }
+
+    .status-indicator.offline .status-dot {
+      background: #dc3545;
+    }
+
+    @keyframes pulse {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0.5; }
+    }
+
+    .pending-badge {
+      background: #ffc107;
+      color: #000;
+      padding: 4px 12px;
+      border-radius: 12px;
+      font-size: 12px;
+      font-weight: bold;
+    }
+
+    .sync-btn {
+      background: #007bff;
+      color: white;
+      border: none;
+      padding: 10px 20px;
+      border-radius: 6px;
+      cursor: pointer;
+      font-weight: 600;
+      transition: background 0.3s;
+    }
+
+    .sync-btn:hover {
+      background: #0056b3;
+    }
+
+    .sync-btn:disabled {
+      background: #ccc;
+      cursor: not-allowed;
+    }
+
+    .content {
+      display: grid;
+      grid-template-columns: 400px 1fr;
+      gap: 20px;
+    }
+
+    .card {
+      background: white;
+      border-radius: 12px;
+      padding: 25px;
+      box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+    }
+
+    .card h2 {
+      color: #333;
+      margin-bottom: 20px;
+      font-size: 20px;
+    }
+
+    .form-group {
+      margin-bottom: 15px;
+    }
+
+    .form-group label {
+      display: block;
+      color: #555;
+      font-weight: 600;
+      margin-bottom: 5px;
+      font-size: 14px;
+    }
+
+    .form-group input,
+    .form-group textarea {
+      width: 100%;
+      padding: 10px;
+      border: 2px solid #e0e0e0;
+      border-radius: 6px;
+      font-size: 14px;
+      font-family: inherit;
+      transition: border-color 0.3s;
+    }
+
+    .form-group input:focus,
+    .form-group textarea:focus {
+      outline: none;
+      border-color: #667eea;
+    }
+
+    .form-group textarea {
+      resize: vertical;
+      min-height: 80px;
+    }
+
+    .btn {
+      width: 100%;
+      padding: 12px;
+      background: #667eea;
+      color: white;
+      border: none;
+      border-radius: 6px;
+      font-size: 16px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: background 0.3s;
+    }
+
+    .btn:hover {
+      background: #5568d3;
+    }
+
+    .btn:active {
+      transform: scale(0.98);
+    }
+
+    .checkin-list {
+      max-height: 600px;
+      overflow-y: auto;
+    }
+
+    .checkin-item {
+      background: #f8f9fa;
+      border-left: 4px solid #667eea;
+      padding: 15px;
+      margin-bottom: 10px;
+      border-radius: 6px;
+      transition: transform 0.2s, box-shadow 0.2s;
+    }
+
+    .checkin-item:hover {
+      transform: translateX(5px);
+      box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    }
+
+    .checkin-item.synced {
+      border-left-color: #28a745;
+    }
+
+    .checkin-item.pending {
+      border-left-color: #ffc107;
+    }
+
+    .checkin-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: start;
+      margin-bottom: 8px;
+    }
+
+    .checkin-user {
+      font-weight: 600;
+      color: #333;
+      font-size: 16px;
+    }
+
+    .checkin-location {
+      color: #666;
+      font-size: 14px;
+      margin-bottom: 5px;
+    }
+
+    .checkin-time {
+      color: #999;
+      font-size: 12px;
+    }
+
+    .checkin-notes {
+      color: #555;
+      font-size: 13px;
+      margin-top: 8px;
+      font-style: italic;
+    }
+
+    .sync-badge {
+      padding: 3px 8px;
+      border-radius: 4px;
+      font-size: 11px;
+      font-weight: bold;
+    }
+
+    .sync-badge.synced {
+      background: #d4edda;
+      color: #155724;
+    }
+
+    .sync-badge.pending {
+      background: #fff3cd;
+      color: #856404;
+    }
+
+    .delete-btn {
+      background: #dc3545;
+      color: white;
+      border: none;
+      padding: 5px 10px;
+      border-radius: 4px;
+      cursor: pointer;
+      font-size: 12px;
+      margin-top: 8px;
+    }
+
+    .delete-btn:hover {
+      background: #c82333;
+    }
+
+    .empty-state {
+      text-align: center;
+      padding: 40px;
+      color: #999;
+    }
+
+    .empty-state svg {
+      width: 80px;
+      height: 80px;
+      margin-bottom: 15px;
+      opacity: 0.5;
+    }
+
+    .notification {
+      position: fixed;
+      top: 20px;
+      right: 20px;
+      background: #28a745;
+      color: white;
+      padding: 15px 20px;
+      border-radius: 8px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+      z-index: 1000;
+      animation: slideIn 0.3s ease-out;
+    }
+
+    @keyframes slideIn {
+      from {
+        transform: translateX(400px);
+        opacity: 0;
+      }
+      to {
+        transform: translateX(0);
+        opacity: 1;
+      }
+    }
+
+    .stats {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 10px;
+      margin-bottom: 20px;
+    }
+
+    .stat-card {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: white;
+      padding: 15px;
+      border-radius: 8px;
+      text-align: center;
+    }
+
+    .stat-value {
+      font-size: 28px;
+      font-weight: bold;
+      margin-bottom: 5px;
+    }
+
+    .stat-label {
+      font-size: 12px;
+      opacity: 0.9;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="header">
+      <h1>🏢 Check-in Desktop</h1>
+      <div class="status-bar">
+        <div class="status-indicator offline" id="statusIndicator">
+          <div class="status-dot"></div>
+          <span id="statusText">Verificando...</span>
+        </div>
+        <span class="pending-badge" id="pendingBadge" style="display: none;">
+          0 pendentes
+        </span>
+        <button class="sync-btn" id="syncBtn" onclick="forceSync()">
+          🔄 Sincronizar
+        </button>
+      </div>
+    </div>
+
+    <div class="content">
+      <!-- Formulário de Check-in -->
+      <div class="card">
+        <h2>📝 Novo Check-in</h2>
+        <form id="checkinForm" onsubmit="handleSubmit(event)">
+          <div class="form-group">
+            <label for="userName">Nome do Usuário *</label>
+            <input 
+              type="text" 
+              id="userName" 
+              name="userName" 
+              required
+              placeholder="Digite seu nome"
+            >
+          </div>
+
+          <div class="form-group">
+            <label for="location">Local *</label>
+            <input 
+              type="text" 
+              id="location" 
+              name="location" 
+              required
+              placeholder="Ex: Escritório, Sala 101"
+            >
+          </div>
+
+          <div class="form-group">
+            <label for="notes">Observações</label>
+            <textarea 
+              id="notes" 
+              name="notes"
+              placeholder="Observações adicionais (opcional)"
+            ></textarea>
+          </div>
+
+          <button type="submit" class="btn">
+            ✅ Registrar Check-in
+          </button>
+        </form>
+      </div>
+
+      <!-- Lista de Check-ins -->
+      <div class="card">
+        <h2>📋 Histórico de Check-ins</h2>
+        
+        <div class="stats">
+          <div class="stat-card">
+            <div class="stat-value" id="totalCount">0</div>
+            <div class="stat-label">Total</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-value" id="syncedCount">0</div>
+            <div class="stat-label">Sincronizados</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-value" id="pendingCount">0</div>
+            <div class="stat-label">Pendentes</div>
+          </div>
+        </div>
+
+        <div class="checkin-list" id="checkinList">
+          <div class="empty-state">
+            <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"></path>
+            </svg>
+            <p>Nenhum check-in registrado ainda</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    let isOnline = false;
+
+    // Inicialização
+    document.addEventListener('DOMContentLoaded', async () => {
+      await checkConnection();
+      await loadCheckIns();
+      
+      // Verificar conexão a cada 10 segundos
+      setInterval(checkConnection, 10000);
+      
+      // Listener para sincronização automática
+      window.electronAPI.onSyncCompleted((data) => {
+        showNotification(data.message);
+        loadCheckIns();
+        checkConnection();
+      });
+    });
+
+    // Verificar status da conexão
+    async function checkConnection() {
+      const result = await window.electronAPI.checkConnection();
+      isOnline = result.online;
+      
+      const indicator = document.getElementById('statusIndicator');
+      const statusText = document.getElementById('statusText');
+      const syncBtn = document.getElementById('syncBtn');
+      
+      if (isOnline) {
+        indicator.className = 'status-indicator online';
+        statusText.textContent = 'Online';
+        syncBtn.disabled = false;
+      } else {
+        indicator.className = 'status-indicator offline';
+        statusText.textContent = 'Offline';
+        syncBtn.disabled = true;
+      }
+      
+      await updatePendingCount();
+    }
+
+    // Atualizar contagem de pendentes
+    async function updatePendingCount() {
+      const result = await window.electronAPI.getPendingCheckIns();
+      const badge = document.getElementById('pendingBadge');
+      const count = result.count || 0;
+      
+      if (count > 0) {
+        badge.style.display = 'block';
+        badge.textContent = `${count} pendente${count > 1 ? 's' : ''}`;
+      } else {
+        badge.style.display = 'none';
+      }
+    }
+
+    // Submeter novo check-in
+    async function handleSubmit(event) {
+      event.preventDefault();
+      
+      const formData = {
+        userName: document.getElementById('userName').value,
+        location: document.getElementById('location').value,
+        notes: document.getElementById('notes').value,
+        checkInTime: new Date().toISOString()
+      };
+      
+      const result = await window.electronAPI.createCheckIn(formData);
+      
+      if (result.success) {
+        showNotification(
+          isOnline 
+            ? '✅ Check-in registrado e sincronizado!' 
+            : '💾 Check-in salvo localmente (será sincronizado quando online)'
+        );
+        
+        // Limpar formulário
+        document.getElementById('checkinForm').reset();
+        
+        // Recarregar lista
+        await loadCheckIns();
+        await checkConnection();
+      } else {
+        showNotification('❌ Erro ao registrar check-in: ' + result.error, true);
+      }
+    }
+
+    // Carregar lista de check-ins
+    async function loadCheckIns() {
+      const result = await window.electronAPI.getCheckIns();
+      
+      if (!result.success) {
+        console.error('Error loading check-ins:', result.error);
+        return;
+      }
+      
+      const checkins = result.data || [];
+      const container = document.getElementById('checkinList');
+      
+      if (checkins.length === 0) {
+        container.innerHTML = `
+          <div class="empty-state">
+            <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"></path>
+            </svg>
+            <p>Nenhum check-in registrado ainda</p>
+          </div>
+        `;
+        updateStats(0, 0, 0);
+        return;
+      }
+      
+      const syncedCount = checkins.filter(c => c.synced === 1).length;
+      const pendingCount = checkins.filter(c => c.synced === 0).length;
+      
+      updateStats(checkins.length, syncedCount, pendingCount);
+      
+      container.innerHTML = checkins.map(checkin => `
+        <div class="checkin-item ${checkin.synced ? 'synced' : 'pending'}">
+          <div class="checkin-header">
+            <div>
+              <div class="checkin-user">👤 ${checkin.userName}</div>
+            </div>
+            <span class="sync-badge ${checkin.synced ? 'synced' : 'pending'}">
+              ${checkin.synced ? '✓ Sincronizado' : '⏳ Pendente'}
+            </span>
+          </div>
+          <div class="checkin-location">📍 ${checkin.location}</div>
+          <div class="checkin-time">🕐 ${formatDate(checkin.checkInTime)}</div>
+          ${checkin.notes ? `<div class="checkin-notes">💬 ${checkin.notes}</div>` : ''}
+          <button class="delete-btn" onclick="deleteCheckIn(${checkin.id})">🗑️ Excluir</button>
+        </div>
+      `).join('');
+    }
+
+    // Atualizar estatísticas
+    function updateStats(total, synced, pending) {
+      document.getElementById('totalCount').textContent = total;
+      document.getElementById('syncedCount').textContent = synced;
+      document.getElementById('pendingCount').textContent = pending;
+    }
+
+    // Deletar check-in
+    async function deleteCheckIn(id) {
+      if (!confirm('Deseja realmente excluir este check-in?')) {
+        return;
+      }
+      
+      const result = await window.electronAPI.deleteCheckIn(id);
+      
+      if (result.success) {
+        showNotification('🗑️ Check-in excluído com sucesso');
+        await loadCheckIns();
+        await checkConnection();
+      } else {
+        showNotification('❌ Erro ao excluir check-in', true);
+      }
+    }
+
+    // Forçar sincronização
+    async function forceSync() {
+      const btn = document.getElementById('syncBtn');
+      btn.disabled = true;
+      btn.textContent = '🔄 Sincronizando...';
+      
+      const result = await window.electronAPI.forceSync();
+      
+      if (result.success) {
+        showNotification(result.message);
+        await loadCheckIns();
+      } else {
+        showNotification(result.message, true);
+      }
+      
+      btn.disabled = false;
+      btn.textContent = '🔄 Sincronizar';
+      await checkConnection();
+    }
+
+    // Formatar data
+    function formatDate(dateString) {
+      const date = new Date(dateString);
+      return date.toLocaleString('pt-BR', {
+        day: '2-digit',
+        month: '2-digit',
+        year: 'numeric',
+        hour: '2-digit',
+        minute: '2-digit'
+      });
+    }
+
+    // Mostrar notificação
+    function showNotification(message, isError = false) {
+      const notification = document.createElement('div');
+      notification.className = 'notification';
+      notification.style.background = isError ? '#dc3545' : '#28a745';
+      notification.textContent = message;
+      
+      document.body.appendChild(notification);
+      
+      setTimeout(() => {
+        notification.remove();
+      }, 4000);
+    }
+  </script>
+</body>
+</html>
