@@ -10,9 +10,9 @@ import java.util.List;
 @Repository
 public interface CheckInRepository extends JpaRepository<CheckIn, Long> {
     
-    List<CheckIn> findByUserNameOrderByCheckInTimeDesc(String userName);
+    List<CheckIn> findByEventId(Long eventId);
     
-    List<CheckIn> findByLocationOrderByCheckInTimeDesc(String location);
+    List<CheckIn> findByParticipantId(Long participantId);
     
     List<CheckIn> findByCheckInTimeBetween(LocalDateTime start, LocalDateTime end);
     

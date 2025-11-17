@@ -11,6 +11,7 @@ import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Map;
 
 @RestController
 @RequestMapping("/api/checkins")
@@ -32,16 +33,6 @@ public class CheckInController {
                 .orElse(ResponseEntity.notFound().build());
     }
     
-    @GetMapping("/user/{userName}")
-    public ResponseEntity<List<CheckIn>> getCheckInsByUserName(@PathVariable String userName) {
-        return ResponseEntity.ok(checkInService.getCheckInsByUserName(userName));
-    }
-    
-    @GetMapping("/location/{location}")
-    public ResponseEntity<List<CheckIn>> getCheckInsByLocation(@PathVariable String location) {
-        return ResponseEntity.ok(checkInService.getCheckInsByLocation(location));
-    }
-    
     @GetMapping("/range")
     public ResponseEntity<List<CheckIn>> getCheckInsByDateRange(
             @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime start,
@@ -55,8 +46,11 @@ public class CheckInController {
     }
     
     @PostMapping
-    public ResponseEntity<CheckIn> createCheckIn(@Valid @RequestBody CheckIn checkIn) {
-        CheckIn savedCheckIn = checkInService.createCheckIn(checkIn);
+    public ResponseEntity<CheckIn> createCheckIn(
+            @RequestParam Long eventId,
+            @RequestParam Long participantId,
+            @Valid @RequestBody CheckIn checkIn) {
+        CheckIn savedCheckIn = checkInService.createCheckIn(eventId, participantId, checkIn);
         return ResponseEntity.status(HttpStatus.CREATED).body(savedCheckIn);
     }
     

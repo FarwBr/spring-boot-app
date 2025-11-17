@@ -4,21 +4,16 @@ const fs = require('fs');
 const axios = require('axios');
 const initSqlJs = require('sql.js');
 
-// Configuração do banco de dados SQLite local
 let db;
 let SQL;
 let mainWindow;
 
-// URL do backend (pode ser configurada)
-const BACKEND_URL = process.env.BACKEND_URL || 'http://localhost:8080/api/checkins';
+const BACKEND_URL = process.env.BACKEND_URL || 'http://localhost:8080/api';
 
 async function initDatabase() {
   const dbPath = path.join(app.getPath('userData'), 'checkin.db');
-  
-  // Inicializar sql.js
   SQL = await initSqlJs();
   
-  // Verificar se banco existe e carregar, senão criar novo
   if (fs.existsSync(dbPath)) {
     const buffer = fs.readFileSync(dbPath);
     db = new SQL.Database(buffer);
@@ -26,22 +21,52 @@ async function initDatabase() {
     db = new SQL.Database();
   }
   
-  // Criar tabela de check-ins se não existir
+  // Criar tabelas
+  db.run(`
+    CREATE TABLE IF NOT EXISTS events (
+      id INTEGER PRIMARY KEY,
+      name TEXT NOT NULL,
+      description TEXT,
+      location TEXT NOT NULL,
+      startTime TEXT NOT NULL,
+      endTime TEXT NOT NULL,
+      active INTEGER DEFAULT 1,
+      maxCapacity INTEGER DEFAULT 0,
+      synced INTEGER DEFAULT 0
+    )
+  `);
+  
+  db.run(`
+    CREATE TABLE IF NOT EXISTS participants (
+      id INTEGER PRIMARY KEY,
+      eventId INTEGER NOT NULL,
+      name TEXT NOT NULL,
+      email TEXT,
+      phone TEXT,
+      company TEXT,
+      checkedIn INTEGER DEFAULT 0,
+      checkInTime TEXT,
+      isWalkIn INTEGER DEFAULT 0,
+      synced INTEGER DEFAULT 0,
+      FOREIGN KEY (eventId) REFERENCES events(id)
+    )
+  `);
+  
   db.run(`
     CREATE TABLE IF NOT EXISTS checkins (
       id INTEGER PRIMARY KEY AUTOINCREMENT,
-      userName TEXT NOT NULL,
-      location TEXT NOT NULL,
-      notes TEXT,
+      eventId INTEGER NOT NULL,
+      participantId INTEGER NOT NULL,
       checkInTime TEXT NOT NULL,
+      notes TEXT,
       synced INTEGER DEFAULT 0,
-      localCreatedAt TEXT NOT NULL
+      localCreatedAt TEXT NOT NULL,
+      FOREIGN KEY (eventId) REFERENCES events(id),
+      FOREIGN KEY (participantId) REFERENCES participants(id)
     )
   `);
   
   console.log('Database initialized at:', dbPath);
-  
-  // Salvar banco após cada operação
   saveDatabase();
 }
 
@@ -54,37 +79,133 @@ function saveDatabase() {
 
 function createWindow() {
   mainWindow = new BrowserWindow({
-    width: 1200,
-    height: 800,
+    width: 1400,
+    height: 900,
     webPreferences: {
       nodeIntegration: false,
       contextIsolation: true,
       preload: path.join(__dirname, 'preload.js')
     },
-    title: 'Check-in Desktop - Offline Ready',
-    icon: path.join(__dirname, 'assets', 'icon.png')
+    title: 'Check-in Desktop - Eventos Offline'
   });
 
   mainWindow.loadFile('index.html');
   
-  // Abrir DevTools em modo desenvolvimento
   if (process.argv.includes('--dev')) {
     mainWindow.webContents.openDevTools();
   }
   
-  // Verificar conexão periodicamente
-  setInterval(checkConnectionAndSync, 30000); // A cada 30 segundos
+  setInterval(checkConnectionAndSync, 30000);
 }
 
-// IPC Handlers - Comunicação entre Electron e Renderer
-
-// Criar novo check-in
-ipcMain.handle('create-checkin', async (event, data) => {
+// ===== EVENTS =====
+ipcMain.handle('get-events', async () => {
   try {
+    const result = db.exec('SELECT * FROM events WHERE active = 1 ORDER BY startTime ASC');
+    const events = result.length > 0 ? result[0].values.map(row => ({
+      id: row[0], name: row[1], description: row[2], location: row[3],
+      startTime: row[4], endTime: row[5], active: row[6], maxCapacity: row[7], synced: row[8]
+    })) : [];
+    return { success: true, data: events };
+  } catch (error) {
+    return { success: false, error: error.message };
+  }
+});
+
+ipcMain.handle('sync-events', async () => {
+  try {
+    const connection = await checkConnection();
+    if (!connection.online) return { success: false, message: 'Offline' };
+    
+    const response = await axios.get(`${BACKEND_URL}/events/active`, { timeout: 5000 });
+    const events = response.data;
+    
+    // Limpar eventos antigos e inserir novos
+    db.run('DELETE FROM events');
+    
+    events.forEach(event => {
+      db.run(
+        'INSERT INTO events (id, name, description, location, startTime, endTime, active, maxCapacity, synced) VALUES (?, ?, ?, ?, ?, ?, ?, ?, 1)',
+        [event.id, event.name, event.description, event.location, event.startTime, event.endTime, event.active ? 1 : 0, event.maxCapacity]
+      );
+    });
+    
+    saveDatabase();
+    return { success: true, count: events.length };
+  } catch (error) {
+    return { success: false, error: error.message };
+  }
+});
+
+// ===== PARTICIPANTS =====
+ipcMain.handle('get-participants', async (event, eventId) => {
+  try {
+    const result = db.exec(`SELECT * FROM participants WHERE eventId = ${eventId} ORDER BY name ASC`);
+    const participants = result.length > 0 ? result[0].values.map(row => ({
+      id: row[0], eventId: row[1], name: row[2], email: row[3], phone: row[4],
+      company: row[5], checkedIn: row[6], checkInTime: row[7], isWalkIn: row[8], synced: row[9]
+    })) : [];
+    return { success: true, data: participants };
+  } catch (error) {
+    return { success: false, error: error.message };
+  }
+});
+
+ipcMain.handle('sync-participants', async (event, eventId) => {
+  try {
+    const connection = await checkConnection();
+    if (!connection.online) return { success: false, message: 'Offline' };
+    
+    const response = await axios.get(`${BACKEND_URL}/participants/event/${eventId}`, { timeout: 5000 });
+    const participants = response.data;
+    
+    // Limpar participantes do evento e inserir novos
+    db.run(`DELETE FROM participants WHERE eventId = ${eventId}`);
+    
+    participants.forEach(p => {
+      db.run(
+        'INSERT INTO participants (id, eventId, name, email, phone, company, checkedIn, checkInTime, isWalkIn, synced) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, 1)',
+        [p.id, eventId, p.name, p.email, p.phone, p.company, p.checkedIn ? 1 : 0, p.checkInTime, p.isWalkIn ? 1 : 0]
+      );
+    });
+    
+    saveDatabase();
+    return { success: true, count: participants.length };
+  } catch (error) {
+    return { success: false, error: error.message };
+  }
+});
+
+ipcMain.handle('add-walkin', async (event, data) => {
+  try {
+    const maxId = db.exec('SELECT MAX(id) FROM participants')[0]?.values[0]?.[0] || 0;
+    const newId = maxId + 1;
+    
     db.run(
-      `INSERT INTO checkins (userName, location, notes, checkInTime, localCreatedAt)
-       VALUES (?, ?, ?, ?, ?)`,
-      [data.userName, data.location, data.notes || '', data.checkInTime, new Date().toISOString()]
+      'INSERT INTO participants (id, eventId, name, email, phone, company, checkedIn, isWalkIn, synced) VALUES (?, ?, ?, ?, ?, ?, 0, 1, 0)',
+      [newId, data.eventId, data.name, data.email || '', data.phone || '', data.company || '']
+    );
+    
+    saveDatabase();
+    return { success: true, id: newId };
+  } catch (error) {
+    return { success: false, error: error.message };
+  }
+});
+
+// ===== CHECK-IN =====
+ipcMain.handle('checkin-participant', async (event, data) => {
+  try {
+    // Atualizar participante como checked-in
+    db.run(
+      `UPDATE participants SET checkedIn = 1, checkInTime = ? WHERE id = ?`,
+      [new Date().toISOString(), data.participantId]
+    );
+    
+    // Criar registro de check-in
+    db.run(
+      'INSERT INTO checkins (eventId, participantId, checkInTime, notes, synced, localCreatedAt) VALUES (?, ?, ?, ?, 0, ?)',
+      [data.eventId, data.participantId, new Date().toISOString(), data.notes || '', new Date().toISOString()]
     );
     
     saveDatabase();
@@ -92,150 +213,129 @@ ipcMain.handle('create-checkin', async (event, data) => {
     // Tentar sincronizar imediatamente
     trySync();
     
-    return { success: true, id: db.exec('SELECT last_insert_rowid()')[0].values[0][0] };
+    return { success: true };
   } catch (error) {
-    console.error('Error creating check-in:', error);
     return { success: false, error: error.message };
   }
 });
 
-// Buscar todos os check-ins
-ipcMain.handle('get-checkins', async () => {
+ipcMain.handle('get-checkins', async (event, eventId) => {
   try {
-    const result = db.exec('SELECT * FROM checkins ORDER BY checkInTime DESC');
+    const result = db.exec(`
+      SELECT c.*, p.name as participantName 
+      FROM checkins c 
+      JOIN participants p ON c.participantId = p.id 
+      WHERE c.eventId = ${eventId} 
+      ORDER BY c.checkInTime DESC
+    `);
     const checkins = result.length > 0 ? result[0].values.map(row => ({
-      id: row[0],
-      userName: row[1],
-      location: row[2],
-      notes: row[3],
-      checkInTime: row[4],
-      synced: row[5],
-      localCreatedAt: row[6]
+      id: row[0], eventId: row[1], participantId: row[2], checkInTime: row[3],
+      notes: row[4], synced: row[5], localCreatedAt: row[6], participantName: row[7]
     })) : [];
     return { success: true, data: checkins };
   } catch (error) {
-    console.error('Error getting check-ins:', error);
     return { success: false, error: error.message };
   }
 });
 
-// Buscar check-ins pendentes de sincronização
-ipcMain.handle('get-pending-checkins', async () => {
+ipcMain.handle('get-pending-count', async () => {
   try {
     const result = db.exec('SELECT COUNT(*) FROM checkins WHERE synced = 0');
     const count = result.length > 0 ? result[0].values[0][0] : 0;
     return { success: true, count };
   } catch (error) {
-    console.error('Error getting pending check-ins:', error);
     return { success: false, error: error.message };
   }
 });
 
-// Deletar check-in
-ipcMain.handle('delete-checkin', async (event, id) => {
-  try {
-    db.run('DELETE FROM checkins WHERE id = ?', [id]);
-    saveDatabase();
-    return { success: true };
-  } catch (error) {
-    console.error('Error deleting check-in:', error);
-    return { success: false, error: error.message };
-  }
-});
-
-// Verificar status da conexão
+// ===== CONNECTION & SYNC =====
 ipcMain.handle('check-connection', async () => {
   return await checkConnection();
 });
 
-// Forçar sincronização manual
 ipcMain.handle('force-sync', async () => {
   return await trySync();
 });
 
-// Função para verificar conexão com o backend
 async function checkConnection() {
   try {
-    const response = await axios.get(BACKEND_URL, { timeout: 5000 });
-    return { online: true, message: 'Conectado ao servidor' };
+    await axios.get(`${BACKEND_URL}/events`, { timeout: 3000 });
+    return { online: true };
   } catch (error) {
-    return { online: false, message: 'Sem conexão com o servidor' };
+    return { online: false };
   }
 }
 
-// Função para sincronizar dados locais com o backend
 async function trySync() {
   try {
-    // Verificar se está online
     const connection = await checkConnection();
     if (!connection.online) {
-      return { success: false, message: 'Offline - dados salvos localmente' };
+      return { success: false, message: 'Offline' };
     }
     
-    // Buscar check-ins não sincronizados
-    const result = db.exec('SELECT * FROM checkins WHERE synced = 0');
-    const pendingCheckIns = result.length > 0 ? result[0].values.map(row => ({
-      userName: row[1],
-      location: row[2],
-      notes: row[3],
-      checkInTime: row[4],
-      syncedFromOffline: true
-    })) : [];
+    // Sincronizar walk-ins pendentes
+    const walkinsResult = db.exec('SELECT * FROM participants WHERE synced = 0 AND isWalkIn = 1');
+    const walkins = walkinsResult.length > 0 ? walkinsResult[0].values : [];
     
-    if (pendingCheckIns.length === 0) {
-      return { success: true, message: 'Nenhum dado pendente para sincronizar' };
-    }
-    
-    // Preparar dados para envio
-    const dataToSync = pendingCheckIns;
-    
-    // Enviar para o backend
-    const response = await axios.post(`${BACKEND_URL}/sync`, dataToSync, {
-      timeout: 10000,
-      headers: { 'Content-Type': 'application/json' }
-    });
-    
-    if (response.status === 201) {
-      // Marcar como sincronizado
-      db.run('UPDATE checkins SET synced = 1 WHERE synced = 0');
-      saveDatabase();
-      
-      // Notificar a interface
-      if (mainWindow) {
-        mainWindow.webContents.send('sync-completed', {
-          count: pendingCheckIns.length,
-          message: `${pendingCheckIns.length} check-in(s) sincronizado(s) com sucesso!`
+    for (const w of walkins) {
+      try {
+        const response = await axios.post(`${BACKEND_URL}/participants/event/${w[1]}/walk-in`, {
+          name: w[2],
+          email: w[3],
+          phone: w[4],
+          company: w[5]
         });
+        
+        if (response.status === 201) {
+          db.run(`UPDATE participants SET id = ${response.data.id}, synced = 1 WHERE id = ${w[0]}`);
+        }
+      } catch (err) {
+        console.error('Erro ao sincronizar walk-in:', err);
       }
-      
-      return { 
-        success: true, 
-        message: `${pendingCheckIns.length} check-in(s) sincronizado(s)`,
-        count: pendingCheckIns.length
-      };
     }
     
+    // Sincronizar check-ins pendentes
+    const checkinsResult = db.exec('SELECT * FROM checkins WHERE synced = 0');
+    const checkins = checkinsResult.length > 0 ? checkinsResult[0].values : [];
+    
+    let syncedCount = 0;
+    for (const c of checkins) {
+      try {
+        await axios.post(`${BACKEND_URL}/checkins?eventId=${c[1]}&participantId=${c[2]}`, {
+          checkInTime: c[3],
+          notes: c[4] || ''
+        });
+        
+        db.run(`UPDATE checkins SET synced = 1 WHERE id = ${c[0]}`);
+        syncedCount++;
+      } catch (err) {
+        console.error('Erro ao sincronizar check-in:', err);
+      }
+    }
+    
+    saveDatabase();
+    
+    if (syncedCount > 0 && mainWindow) {
+      mainWindow.webContents.send('sync-completed', {
+        count: syncedCount,
+        message: `${syncedCount} check-in(s) sincronizado(s)!`
+      });
+    }
+    
+    return { success: true, count: syncedCount };
   } catch (error) {
-    console.error('Sync error:', error);
-    return { success: false, message: 'Erro ao sincronizar: ' + error.message };
+    return { success: false, error: error.message };
   }
 }
 
-// Verificar conexão e sincronizar periodicamente
 async function checkConnectionAndSync() {
-  const result = await trySync();
-  if (mainWindow && result.success && result.count > 0) {
-    console.log('Auto-sync completed:', result.message);
-  }
+  await trySync();
 }
 
-// Lifecycle do app
 app.whenReady().then(async () => {
   await initDatabase();
   createWindow();
-  
-  // Sincronizar ao iniciar
-  setTimeout(trySync, 3000); // Aguarda 3s após abrir
+  setTimeout(trySync, 3000);
   
   app.on('activate', () => {
     if (BrowserWindow.getAllWindows().length === 0) {
@@ -246,15 +346,11 @@ app.whenReady().then(async () => {
 
 app.on('window-all-closed', () => {
   if (process.platform !== 'darwin') {
-    if (db) {
-      saveDatabase();
-    }
+    if (db) saveDatabase();
     app.quit();
   }
 });
 
 app.on('before-quit', () => {
-  if (db) {
-    saveDatabase();
-  }
+  if (db) saveDatabase();
 });

@@ -3,26 +3,19 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Check-in Desktop - Offline Ready</title>
+  <title>Check-in Desktop - Eventos Offline</title>
   <style>
-    * {
-      margin: 0;
-      padding: 0;
-      box-sizing: border-box;
-    }
-
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    
     body {
-      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, sans-serif;
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
       background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
       padding: 20px;
       min-height: 100vh;
     }
-
-    .container {
-      max-width: 1200px;
-      margin: 0 auto;
-    }
-
+    
+    .container { max-width: 1400px; margin: 0 auto; }
+    
     .header {
       background: white;
       border-radius: 12px;
@@ -33,18 +26,15 @@
       align-items: center;
       box-shadow: 0 4px 6px rgba(0,0,0,0.1);
     }
-
-    .header h1 {
-      color: #333;
-      font-size: 28px;
-    }
-
+    
+    .header h1 { color: #333; font-size: 28px; }
+    
     .status-bar {
       display: flex;
       align-items: center;
       gap: 15px;
     }
-
+    
     .status-indicator {
       display: flex;
       align-items: center;
@@ -54,37 +44,25 @@
       font-weight: 600;
       font-size: 14px;
     }
-
-    .status-indicator.online {
-      background: #d4edda;
-      color: #155724;
-    }
-
-    .status-indicator.offline {
-      background: #f8d7da;
-      color: #721c24;
-    }
-
+    
+    .status-indicator.online { background: #d4edda; color: #155724; }
+    .status-indicator.offline { background: #f8d7da; color: #721c24; }
+    
     .status-dot {
       width: 10px;
       height: 10px;
       border-radius: 50%;
       animation: pulse 2s infinite;
     }
-
-    .status-indicator.online .status-dot {
-      background: #28a745;
-    }
-
-    .status-indicator.offline .status-dot {
-      background: #dc3545;
-    }
-
+    
+    .status-indicator.online .status-dot { background: #28a745; }
+    .status-indicator.offline .status-dot { background: #dc3545; }
+    
     @keyframes pulse {
       0%, 100% { opacity: 1; }
       50% { opacity: 0.5; }
     }
-
+    
     .pending-badge {
       background: #ffc107;
       color: #000;
@@ -93,50 +71,47 @@
       font-size: 12px;
       font-weight: bold;
     }
-
-    .sync-btn {
-      background: #007bff;
-      color: white;
-      border: none;
+    
+    .btn {
       padding: 10px 20px;
+      border: none;
       border-radius: 6px;
       cursor: pointer;
       font-weight: 600;
-      transition: background 0.3s;
+      transition: all 0.3s;
     }
-
-    .sync-btn:hover {
-      background: #0056b3;
-    }
-
-    .sync-btn:disabled {
-      background: #ccc;
-      cursor: not-allowed;
-    }
-
+    
+    .btn-primary { background: #007bff; color: white; }
+    .btn-primary:hover { background: #0056b3; }
+    .btn-success { background: #28a745; color: white; }
+    .btn-success:hover { background: #218838; }
+    .btn-warning { background: #ffc107; color: #000; }
+    .btn-warning:hover { background: #e0a800; }
+    .btn-sm { padding: 5px 10px; font-size: 12px; }
+    
     .content {
       display: grid;
-      grid-template-columns: 400px 1fr;
+      grid-template-columns: 350px 1fr;
       gap: 20px;
     }
-
+    
     .card {
       background: white;
       border-radius: 12px;
       padding: 25px;
       box-shadow: 0 4px 6px rgba(0,0,0,0.1);
     }
-
+    
     .card h2 {
       color: #333;
       margin-bottom: 20px;
       font-size: 20px;
     }
-
+    
     .form-group {
       margin-bottom: 15px;
     }
-
+    
     .form-group label {
       display: block;
       color: #555;
@@ -144,153 +119,121 @@
       margin-bottom: 5px;
       font-size: 14px;
     }
-
+    
     .form-group input,
-    .form-group textarea {
+    .form-group select {
       width: 100%;
       padding: 10px;
       border: 2px solid #e0e0e0;
       border-radius: 6px;
       font-size: 14px;
       font-family: inherit;
-      transition: border-color 0.3s;
     }
-
+    
     .form-group input:focus,
-    .form-group textarea:focus {
+    .form-group select:focus {
       outline: none;
       border-color: #667eea;
     }
-
-    .form-group textarea {
-      resize: vertical;
-      min-height: 80px;
-    }
-
-    .btn {
-      width: 100%;
-      padding: 12px;
-      background: #667eea;
+    
+    .event-selector {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
       color: white;
-      border: none;
-      border-radius: 6px;
-      font-size: 16px;
-      font-weight: 600;
-      cursor: pointer;
-      transition: background 0.3s;
+      padding: 15px;
+      border-radius: 8px;
+      margin-bottom: 20px;
     }
-
-    .btn:hover {
-      background: #5568d3;
+    
+    .event-info {
+      font-size: 12px;
+      margin-top: 5px;
+      opacity: 0.9;
     }
-
-    .btn:active {
-      transform: scale(0.98);
-    }
-
-    .checkin-list {
-      max-height: 600px;
+    
+    .participant-list {
+      max-height: 500px;
       overflow-y: auto;
     }
-
-    .checkin-item {
+    
+    .participant-item {
       background: #f8f9fa;
-      border-left: 4px solid #667eea;
-      padding: 15px;
-      margin-bottom: 10px;
+      padding: 12px;
+      margin-bottom: 8px;
       border-radius: 6px;
-      transition: transform 0.2s, box-shadow 0.2s;
-    }
-
-    .checkin-item:hover {
-      transform: translateX(5px);
-      box-shadow: 0 2px 8px rgba(0,0,0,0.1);
-    }
-
-    .checkin-item.synced {
-      border-left-color: #28a745;
-    }
-
-    .checkin-item.pending {
-      border-left-color: #ffc107;
-    }
-
-    .checkin-header {
       display: flex;
       justify-content: space-between;
-      align-items: start;
-      margin-bottom: 8px;
+      align-items: center;
+      border-left: 4px solid #667eea;
     }
-
-    .checkin-user {
+    
+    .participant-item.checked-in {
+      background: #d4edda;
+      border-left-color: #28a745;
+    }
+    
+    .participant-item.walk-in {
+      border-left-color: #ffc107;
+    }
+    
+    .participant-name {
       font-weight: 600;
       color: #333;
-      font-size: 16px;
     }
-
-    .checkin-location {
-      color: #666;
-      font-size: 14px;
-      margin-bottom: 5px;
-    }
-
-    .checkin-time {
-      color: #999;
+    
+    .participant-info {
       font-size: 12px;
+      color: #666;
+      margin-top: 2px;
     }
-
-    .checkin-notes {
-      color: #555;
-      font-size: 13px;
-      margin-top: 8px;
-      font-style: italic;
-    }
-
-    .sync-badge {
+    
+    .participant-badge {
       padding: 3px 8px;
       border-radius: 4px;
       font-size: 11px;
       font-weight: bold;
+      margin-left: 8px;
     }
-
-    .sync-badge.synced {
-      background: #d4edda;
-      color: #155724;
-    }
-
-    .sync-badge.pending {
-      background: #fff3cd;
-      color: #856404;
-    }
-
-    .delete-btn {
-      background: #dc3545;
+    
+    .badge-checked {
+      background: #28a745;
       color: white;
-      border: none;
-      padding: 5px 10px;
-      border-radius: 4px;
-      cursor: pointer;
-      font-size: 12px;
-      margin-top: 8px;
     }
-
-    .delete-btn:hover {
-      background: #c82333;
+    
+    .badge-pending {
+      background: #ffc107;
+      color: #000;
     }
-
-    .empty-state {
+    
+    .badge-walkin {
+      background: #ff9800;
+      color: white;
+    }
+    
+    .stats {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 10px;
+      margin-bottom: 20px;
+    }
+    
+    .stat-card {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: white;
+      padding: 15px;
+      border-radius: 8px;
       text-align: center;
-      padding: 40px;
-      color: #999;
     }
-
-    .empty-state svg {
-      width: 80px;
-      height: 80px;
-      margin-bottom: 15px;
-      opacity: 0.5;
+    
+    .stat-value {
+      font-size: 28px;
+      font-weight: bold;
     }
-
+    
+    .stat-label {
+      font-size: 12px;
+      opacity: 0.9;
+    }
+    
     .notification {
       position: fixed;
       top: 20px;
@@ -303,49 +246,66 @@
       z-index: 1000;
       animation: slideIn 0.3s ease-out;
     }
-
+    
     @keyframes slideIn {
-      from {
-        transform: translateX(400px);
-        opacity: 0;
-      }
-      to {
-        transform: translateX(0);
-        opacity: 1;
-      }
+      from { transform: translateX(400px); opacity: 0; }
+      to { transform: translateX(0); opacity: 1; }
     }
-
-    .stats {
-      display: grid;
-      grid-template-columns: repeat(3, 1fr);
-      gap: 10px;
+    
+    .empty-state {
+      text-align: center;
+      padding: 40px;
+      color: #999;
+    }
+    
+    .modal {
+      display: none;
+      position: fixed;
+      z-index: 1000;
+      left: 0;
+      top: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0,0,0,0.5);
+    }
+    
+    .modal-content {
+      background: white;
+      margin: 10% auto;
+      padding: 30px;
+      border-radius: 12px;
+      width: 90%;
+      max-width: 500px;
+      animation: zoomIn 0.3s;
+    }
+    
+    @keyframes zoomIn {
+      from { transform: scale(0.7); opacity: 0; }
+      to { transform: scale(1); opacity: 1; }
+    }
+    
+    .modal-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
       margin-bottom: 20px;
     }
-
-    .stat-card {
-      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-      color: white;
-      padding: 15px;
-      border-radius: 8px;
-      text-align: center;
-    }
-
-    .stat-value {
+    
+    .close {
       font-size: 28px;
       font-weight: bold;
-      margin-bottom: 5px;
+      cursor: pointer;
+      color: #999;
     }
-
-    .stat-label {
-      font-size: 12px;
-      opacity: 0.9;
-    }
+    
+    .close:hover { color: #333; }
   </style>
 </head>
 <body>
   <div class="container">
+    <!-- Header -->
     <div class="header">
-      <h1>🏢 Check-in Desktop</h1>
+      <h1>🏢 Check-in Desktop - Eventos</h1>
       <div class="status-bar">
         <div class="status-indicator offline" id="statusIndicator">
           <div class="status-dot"></div>
@@ -354,79 +314,83 @@
         <span class="pending-badge" id="pendingBadge" style="display: none;">
           0 pendentes
         </span>
-        <button class="sync-btn" id="syncBtn" onclick="forceSync()">
+        <button class="btn btn-primary" id="syncBtn" onclick="forceSync()">
           🔄 Sincronizar
         </button>
       </div>
     </div>
 
     <div class="content">
-      <!-- Formulário de Check-in -->
-      <div class="card">
-        <h2>📝 Novo Check-in</h2>
-        <form id="checkinForm" onsubmit="handleSubmit(event)">
+      <!-- Sidebar -->
+      <div>
+        <!-- Seletor de Evento -->
+        <div class="card">
+          <h2>🎯 Selecionar Evento</h2>
           <div class="form-group">
-            <label for="userName">Nome do Usuário *</label>
-            <input 
-              type="text" 
-              id="userName" 
-              name="userName" 
-              required
-              placeholder="Digite seu nome"
-            >
+            <select id="eventSelector" onchange="selectEvent()">
+              <option value="">Selecione um evento...</option>
+            </select>
           </div>
-
-          <div class="form-group">
-            <label for="location">Local *</label>
-            <input 
-              type="text" 
-              id="location" 
-              name="location" 
-              required
-              placeholder="Ex: Escritório, Sala 101"
-            >
+          <div class="event-selector" id="eventInfo" style="display: none;">
+            <strong id="eventName"></strong>
+            <div class="event-info" id="eventDetails"></div>
           </div>
-
-          <div class="form-group">
-            <label for="notes">Observações</label>
-            <textarea 
-              id="notes" 
-              name="notes"
-              placeholder="Observações adicionais (opcional)"
-            ></textarea>
-          </div>
-
-          <button type="submit" class="btn">
-            ✅ Registrar Check-in
+          <button class="btn btn-primary" style="width: 100%;" onclick="syncEventsData()">
+            🔄 Atualizar Eventos
           </button>
-        </form>
+        </div>
+
+        <!-- Adicionar Walk-in -->
+        <div class="card" style="margin-top: 20px;" id="walkInCard" style="display: none;">
+          <h2>➕ Adicionar Walk-in</h2>
+          <form id="walkInForm" onsubmit="addWalkIn(event)">
+            <div class="form-group">
+              <label>Nome *</label>
+              <input type="text" id="walkInName" required>
+            </div>
+            <div class="form-group">
+              <label>Email</label>
+              <input type="email" id="walkInEmail">
+            </div>
+            <div class="form-group">
+              <label>Telefone</label>
+              <input type="text" id="walkInPhone">
+            </div>
+            <div class="form-group">
+              <label>Empresa</label>
+              <input type="text" id="walkInCompany">
+            </div>
+            <button type="submit" class="btn btn-warning" style="width: 100%;">
+              ➕ Adicionar Sem Reserva
+            </button>
+          </form>
+        </div>
       </div>
 
-      <!-- Lista de Check-ins -->
+      <!-- Main Content -->
       <div class="card">
-        <h2>📋 Histórico de Check-ins</h2>
+        <h2>👥 Participantes do Evento</h2>
         
-        <div class="stats">
+        <!-- Stats -->
+        <div class="stats" id="statsSection" style="display: none;">
           <div class="stat-card">
             <div class="stat-value" id="totalCount">0</div>
             <div class="stat-label">Total</div>
           </div>
           <div class="stat-card">
-            <div class="stat-value" id="syncedCount">0</div>
-            <div class="stat-label">Sincronizados</div>
+            <div class="stat-value" id="checkedInCount">0</div>
+            <div class="stat-label">Check-in Feito</div>
           </div>
           <div class="stat-card">
-            <div class="stat-value" id="pendingCount">0</div>
+            <div class="stat-value" id="pendingParticipantsCount">0</div>
             <div class="stat-label">Pendentes</div>
           </div>
         </div>
 
-        <div class="checkin-list" id="checkinList">
+        <!-- Lista de Participantes -->
+        <div class="participant-list" id="participantList">
           <div class="empty-state">
-            <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"></path>
-            </svg>
-            <p>Nenhum check-in registrado ainda</p>
+            <p>Selecione um evento para ver os participantes</p>
           </div>
         </div>
       </div>
@@ -434,25 +398,27 @@
   </div>
 
   <script>
+    let currentEventId = null;
     let isOnline = false;
+    let participants = [];
 
     // Inicialização
     document.addEventListener('DOMContentLoaded', async () => {
+      await loadEvents();
       await checkConnection();
-      await loadCheckIns();
       
-      // Verificar conexão a cada 10 segundos
       setInterval(checkConnection, 10000);
       
-      // Listener para sincronização automática
       window.electronAPI.onSyncCompleted((data) => {
         showNotification(data.message);
-        loadCheckIns();
+        if (currentEventId) {
+          loadParticipants();
+        }
         checkConnection();
       });
     });
 
-    // Verificar status da conexão
+    // Verificar conexão
     async function checkConnection() {
       const result = await window.electronAPI.checkConnection();
       isOnline = result.online;
@@ -476,7 +442,7 @@
 
     // Atualizar contagem de pendentes
     async function updatePendingCount() {
-      const result = await window.electronAPI.getPendingCheckIns();
+      const result = await window.electronAPI.getPendingCount();
       const badge = document.getElementById('pendingBadge');
       const count = result.count || 0;
       
@@ -488,106 +454,173 @@
       }
     }
 
-    // Submeter novo check-in
-    async function handleSubmit(event) {
-      event.preventDefault();
+    // Carregar eventos
+    async function loadEvents() {
+      const result = await window.electronAPI.getEvents();
+      const selector = document.getElementById('eventSelector');
       
-      const formData = {
-        userName: document.getElementById('userName').value,
-        location: document.getElementById('location').value,
-        notes: document.getElementById('notes').value,
-        checkInTime: new Date().toISOString()
-      };
+      selector.innerHTML = '<option value="">Selecione um evento...</option>';
       
-      const result = await window.electronAPI.createCheckIn(formData);
-      
-      if (result.success) {
-        showNotification(
-          isOnline 
-            ? '✅ Check-in registrado e sincronizado!' 
-            : '💾 Check-in salvo localmente (será sincronizado quando online)'
-        );
-        
-        // Limpar formulário
-        document.getElementById('checkinForm').reset();
-        
-        // Recarregar lista
-        await loadCheckIns();
-        await checkConnection();
-      } else {
-        showNotification('❌ Erro ao registrar check-in: ' + result.error, true);
+      if (result.success && result.data.length > 0) {
+        result.data.forEach(event => {
+          const option = document.createElement('option');
+          option.value = event.id;
+          option.textContent = event.name;
+          option.dataset.event = JSON.stringify(event);
+          selector.appendChild(option);
+        });
       }
     }
 
-    // Carregar lista de check-ins
-    async function loadCheckIns() {
-      const result = await window.electronAPI.getCheckIns();
+    // Sincronizar eventos do servidor
+    async function syncEventsData() {
+      if (!isOnline) {
+        showNotification('Você está offline! Conecte-se para sincronizar.', true);
+        return;
+      }
+      
+      const result = await window.electronAPI.syncEvents();
+      
+      if (result.success) {
+        showNotification(`${result.count} evento(s) sincronizado(s)!`);
+        await loadEvents();
+      } else {
+        showNotification('Erro ao sincronizar eventos', true);
+      }
+    }
+
+    // Selecionar evento
+    async function selectEvent() {
+      const selector = document.getElementById('eventSelector');
+      const selectedOption = selector.options[selector.selectedIndex];
+      
+      if (!selectedOption.value) {
+        currentEventId = null;
+        document.getElementById('eventInfo').style.display = 'none';
+        document.getElementById('walkInCard').style.display = 'none';
+        document.getElementById('statsSection').style.display = 'none';
+        document.getElementById('participantList').innerHTML = '<div class="empty-state"><p>Selecione um evento</p></div>';
+        return;
+      }
+      
+      const event = JSON.parse(selectedOption.dataset.event);
+      currentEventId = event.id;
+      
+      // Mostrar info do evento
+      document.getElementById('eventInfo').style.display = 'block';
+      document.getElementById('eventName').textContent = event.name;
+      document.getElementById('eventDetails').textContent = `📍 ${event.location} | 🕐 ${formatDateTime(event.startTime)}`;
+      
+      // Mostrar card de walk-in
+      document.getElementById('walkInCard').style.display = 'block';
+      
+      // Carregar participantes
+      await loadParticipants();
+      
+      // Sincronizar participantes se online
+      if (isOnline) {
+        await syncParticipants();
+      }
+    }
+
+    // Carregar participantes
+    async function loadParticipants() {
+      if (!currentEventId) return;
+      
+      const result = await window.electronAPI.getParticipants(currentEventId);
       
       if (!result.success) {
-        console.error('Error loading check-ins:', result.error);
+        console.error('Erro ao carregar participantes:', result.error);
         return;
       }
       
-      const checkins = result.data || [];
-      const container = document.getElementById('checkinList');
+      participants = result.data || [];
       
-      if (checkins.length === 0) {
-        container.innerHTML = `
-          <div class="empty-state">
-            <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"></path>
-            </svg>
-            <p>Nenhum check-in registrado ainda</p>
-          </div>
-        `;
-        updateStats(0, 0, 0);
+      document.getElementById('statsSection').style.display = 'grid';
+      
+      const total = participants.length;
+      const checkedIn = participants.filter(p => p.checkedIn).length;
+      const pending = total - checkedIn;
+      
+      document.getElementById('totalCount').textContent = total;
+      document.getElementById('checkedInCount').textContent = checkedIn;
+      document.getElementById('pendingParticipantsCount').textContent = pending;
+      
+      const container = document.getElementById('participantList');
+      
+      if (total === 0) {
+        container.innerHTML = '<div class="empty-state"><p>Nenhum participante cadastrado</p></div>';
         return;
       }
       
-      const syncedCount = checkins.filter(c => c.synced === 1).length;
-      const pendingCount = checkins.filter(c => c.synced === 0).length;
-      
-      updateStats(checkins.length, syncedCount, pendingCount);
-      
-      container.innerHTML = checkins.map(checkin => `
-        <div class="checkin-item ${checkin.synced ? 'synced' : 'pending'}">
-          <div class="checkin-header">
-            <div>
-              <div class="checkin-user">👤 ${checkin.userName}</div>
+      container.innerHTML = participants.map(p => `
+        <div class="participant-item ${p.checkedIn ? 'checked-in' : ''} ${p.isWalkIn ? 'walk-in' : ''}">
+          <div>
+            <div class="participant-name">
+              ${p.name}
+              ${p.isWalkIn ? '<span class="participant-badge badge-walkin">Walk-in</span>' : ''}
+              ${p.checkedIn ? '<span class="participant-badge badge-checked">✓ Check-in</span>' : '<span class="participant-badge badge-pending">Pendente</span>'}
             </div>
-            <span class="sync-badge ${checkin.synced ? 'synced' : 'pending'}">
-              ${checkin.synced ? '✓ Sincronizado' : '⏳ Pendente'}
-            </span>
+            <div class="participant-info">
+              ${p.email ? `📧 ${p.email}` : ''} 
+              ${p.company ? `| 🏢 ${p.company}` : ''}
+              ${p.checkedIn ? `| 🕐 ${formatTime(p.checkInTime)}` : ''}
+            </div>
           </div>
-          <div class="checkin-location">📍 ${checkin.location}</div>
-          <div class="checkin-time">🕐 ${formatDate(checkin.checkInTime)}</div>
-          ${checkin.notes ? `<div class="checkin-notes">💬 ${checkin.notes}</div>` : ''}
-          <button class="delete-btn" onclick="deleteCheckIn(${checkin.id})">🗑️ Excluir</button>
+          ${!p.checkedIn ? `<button class="btn btn-success btn-sm" onclick="checkin(${p.id})">✓ Check-in</button>` : ''}
         </div>
       `).join('');
     }
 
-    // Atualizar estatísticas
-    function updateStats(total, synced, pending) {
-      document.getElementById('totalCount').textContent = total;
-      document.getElementById('syncedCount').textContent = synced;
-      document.getElementById('pendingCount').textContent = pending;
+    // Sincronizar participantes
+    async function syncParticipants() {
+      if (!currentEventId || !isOnline) return;
+      
+      const result = await window.electronAPI.syncParticipants(currentEventId);
+      if (result.success) {
+        await loadParticipants();
+      }
     }
 
-    // Deletar check-in
-    async function deleteCheckIn(id) {
-      if (!confirm('Deseja realmente excluir este check-in?')) {
-        return;
-      }
+    // Fazer check-in
+    async function checkin(participantId) {
+      if (!confirm('Confirmar check-in deste participante?')) return;
       
-      const result = await window.electronAPI.deleteCheckIn(id);
+      const result = await window.electronAPI.checkinParticipant({
+        eventId: currentEventId,
+        participantId: participantId,
+        notes: ''
+      });
       
       if (result.success) {
-        showNotification('🗑️ Check-in excluído com sucesso');
-        await loadCheckIns();
+        showNotification(isOnline ? '✅ Check-in realizado e sincronizado!' : '💾 Check-in salvo (será sincronizado quando online)');
+        await loadParticipants();
         await checkConnection();
       } else {
-        showNotification('❌ Erro ao excluir check-in', true);
+        showNotification('❌ Erro ao fazer check-in', true);
+      }
+    }
+
+    // Adicionar walk-in
+    async function addWalkIn(event) {
+      event.preventDefault();
+      
+      const data = {
+        eventId: currentEventId,
+        name: document.getElementById('walkInName').value,
+        email: document.getElementById('walkInEmail').value,
+        phone: document.getElementById('walkInPhone').value,
+        company: document.getElementById('walkInCompany').value
+      };
+      
+      const result = await window.electronAPI.addWalkIn(data);
+      
+      if (result.success) {
+        showNotification('➕ Walk-in adicionado com sucesso!');
+        document.getElementById('walkInForm').reset();
+        await loadParticipants();
+      } else {
+        showNotification('❌ Erro ao adicionar walk-in', true);
       }
     }
 
@@ -600,10 +633,12 @@
       const result = await window.electronAPI.forceSync();
       
       if (result.success) {
-        showNotification(result.message);
-        await loadCheckIns();
+        showNotification(result.count > 0 ? `${result.count} item(ns) sincronizado(s)!` : 'Tudo sincronizado!');
+        if (currentEventId) {
+          await loadParticipants();
+        }
       } else {
-        showNotification(result.message, true);
+        showNotification(result.message || 'Erro ao sincronizar', true);
       }
       
       btn.disabled = false;
@@ -611,13 +646,22 @@
       await checkConnection();
     }
 
-    // Formatar data
-    function formatDate(dateString) {
+    // Formatar data/hora
+    function formatDateTime(dateString) {
       const date = new Date(dateString);
       return date.toLocaleString('pt-BR', {
         day: '2-digit',
         month: '2-digit',
         year: 'numeric',
+        hour: '2-digit',
+        minute: '2-digit'
+      });
+    }
+
+    function formatTime(dateString) {
+      if (!dateString) return '';
+      const date = new Date(dateString);
+      return date.toLocaleString('pt-BR', {
         hour: '2-digit',
         minute: '2-digit'
       });

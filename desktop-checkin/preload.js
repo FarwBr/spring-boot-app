@@ -1,18 +1,25 @@
 const { contextBridge, ipcRenderer } = require('electron');
 
-// Expor APIs seguras para o renderer process
 contextBridge.exposeInMainWorld('electronAPI', {
-  // Check-ins
-  createCheckIn: (data) => ipcRenderer.invoke('create-checkin', data),
-  getCheckIns: () => ipcRenderer.invoke('get-checkins'),
-  getPendingCheckIns: () => ipcRenderer.invoke('get-pending-checkins'),
-  deleteCheckIn: (id) => ipcRenderer.invoke('delete-checkin', id),
+  // Events
+  getEvents: () => ipcRenderer.invoke('get-events'),
+  syncEvents: () => ipcRenderer.invoke('sync-events'),
   
-  // Conexão e sincronização
+  // Participants
+  getParticipants: (eventId) => ipcRenderer.invoke('get-participants', eventId),
+  syncParticipants: (eventId) => ipcRenderer.invoke('sync-participants', eventId),
+  addWalkIn: (data) => ipcRenderer.invoke('add-walkin', data),
+  
+  // Check-ins
+  checkinParticipant: (data) => ipcRenderer.invoke('checkin-participant', data),
+  getCheckIns: (eventId) => ipcRenderer.invoke('get-checkins', eventId),
+  getPendingCount: () => ipcRenderer.invoke('get-pending-count'),
+  
+  // Connection
   checkConnection: () => ipcRenderer.invoke('check-connection'),
   forceSync: () => ipcRenderer.invoke('force-sync'),
   
-  // Event listeners
+  // Events
   onSyncCompleted: (callback) => {
     ipcRenderer.on('sync-completed', (event, data) => callback(data));
   }

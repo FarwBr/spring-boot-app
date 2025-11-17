@@ -1,7 +1,11 @@
 package com.example.service;
 
 import com.example.model.CheckIn;
+import com.example.model.Event;
+import com.example.model.Participant;
 import com.example.repository.CheckInRepository;
+import com.example.repository.EventRepository;
+import com.example.repository.ParticipantRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -15,20 +19,21 @@ public class CheckInService {
     @Autowired
     private CheckInRepository checkInRepository;
     
+    @Autowired
+    private EventRepository eventRepository;
+    
+    @Autowired
+    private ParticipantRepository participantRepository;
+    
+    @Autowired
+    private ParticipantService participantService;
+    
     public List<CheckIn> getAllCheckIns() {
         return checkInRepository.findAll();
     }
     
     public Optional<CheckIn> getCheckInById(Long id) {
         return checkInRepository.findById(id);
-    }
-    
-    public List<CheckIn> getCheckInsByUserName(String userName) {
-        return checkInRepository.findByUserNameOrderByCheckInTimeDesc(userName);
-    }
-    
-    public List<CheckIn> getCheckInsByLocation(String location) {
-        return checkInRepository.findByLocationOrderByCheckInTimeDesc(location);
     }
     
     public List<CheckIn> getCheckInsByDateRange(LocalDateTime start, LocalDateTime end) {
@@ -39,10 +44,23 @@ public class CheckInService {
         return checkInRepository.findBySyncedFromOffline(true);
     }
     
-    public CheckIn createCheckIn(CheckIn checkIn) {
+    public CheckIn createCheckIn(Long eventId, Long participantId, CheckIn checkIn) {
+        Event event = eventRepository.findById(eventId)
+                .orElseThrow(() -> new RuntimeException("Event not found with id: " + eventId));
+        
+        Participant participant = participantRepository.findById(participantId)
+                .orElseThrow(() -> new RuntimeException("Participant not found with id: " + participantId));
+        
+        checkIn.setEvent(event);
+        checkIn.setParticipant(participant);
+        
         if (checkIn.getCheckInTime() == null) {
             checkIn.setCheckInTime(LocalDateTime.now());
         }
+        
+        // Atualizar status do participante
+        participantService.checkInParticipant(participantId);
+        
         return checkInRepository.save(checkIn);
     }
     
@@ -50,8 +68,6 @@ public class CheckInService {
         CheckIn checkIn = checkInRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("CheckIn not found with id: " + id));
         
-        checkIn.setUserName(checkInDetails.getUserName());
-        checkIn.setLocation(checkInDetails.getLocation());
         checkIn.setNotes(checkInDetails.getNotes());
         checkIn.setCheckInTime(checkInDetails.getCheckInTime());
         
