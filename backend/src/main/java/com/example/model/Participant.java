@@ -11,7 +11,9 @@ import lombok.NoArgsConstructor;
 import java.time.LocalDateTime;
 
 @Entity
-@Table(name = "participants")
+@Table(name = "participants", uniqueConstraints = {
+    @UniqueConstraint(columnNames = {"user_id", "event_id"})
+})
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
@@ -21,8 +23,13 @@ public class Participant {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
     
-    @NotBlank(message = "Name is required")
-    @Column(nullable = false)
+    // Relacionamento com User (se for usuário registrado)
+    @ManyToOne(fetch = FetchType.EAGER)
+    @JoinColumn(name = "user_id", nullable = true)
+    private User user;
+    
+    // Campos para walk-ins (participantes sem cadastro prévio)
+    @Column(nullable = true)
     private String name;
     
     @Email(message = "Invalid email format")
@@ -59,10 +66,34 @@ public class Participant {
     protected void onCreate() {
         createdAt = LocalDateTime.now();
         updatedAt = LocalDateTime.now();
+        
+        // Se tem user, copiar dados do user
+        if (user != null && name == null) {
+            name = user.getName();
+            email = user.getEmail();
+            phone = user.getPhone();
+            company = user.getCompany();
+        }
     }
     
     @PreUpdate
     protected void onUpdate() {
         updatedAt = LocalDateTime.now();
+    }
+    
+    // Helper method para obter nome (de user ou walk-in)
+    public String getDisplayName() {
+        if (user != null) {
+            return user.getName();
+        }
+        return name;
+    }
+    
+    // Helper method para obter email
+    public String getDisplayEmail() {
+        if (user != null) {
+            return user.getEmail();
+        }
+        return email;
     }
 }

@@ -5,6 +5,7 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
+import java.util.Optional;
 
 @Repository
 public interface ParticipantRepository extends JpaRepository<Participant, Long> {
@@ -17,7 +18,13 @@ public interface ParticipantRepository extends JpaRepository<Participant, Long> 
     
     List<Participant> findByEventIdAndIsWalkInTrue(Long eventId);
     
+    List<Participant> findByUserId(Long userId);
+    
+    Optional<Participant> findByUserIdAndEventId(Long userId, Long eventId);
+    
     Long countByEventId(Long eventId);
     
     Long countByEventIdAndCheckedInTrue(Long eventId);
+    
+    Long countByUserId(Long userId);
 }

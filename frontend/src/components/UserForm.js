@@ -4,8 +4,8 @@ function UserForm({ onSubmit, initialData = {} }) {
     const [formData, setFormData] = useState({
         name: initialData.name || '',
         email: initialData.email || '',
-        cpf: initialData.cpf || '',
-        phone: initialData.phone || ''
+        phone: initialData.phone || '',
+        company: initialData.company || ''
     });
 
     const handleChange = (e) => {
@@ -19,7 +19,7 @@ function UserForm({ onSubmit, initialData = {} }) {
         e.preventDefault();
         onSubmit(formData);
         if (!initialData.id) {
-            setFormData({ name: '', email: '', cpf: '', phone: '' });
+            setFormData({ name: '', email: '', phone: '', company: '' });
         }
     };
 
@@ -48,25 +48,23 @@ function UserForm({ onSubmit, initialData = {} }) {
                 />
             </div>
             <div className="form-group">
-                <label>🆔 CPF</label>
-                <input
-                    type="text"
-                    name="cpf"
-                    value={formData.cpf}
-                    onChange={handleChange}
-                    placeholder="000.000.000-00"
-                    required
-                />
-            </div>
-            <div className="form-group">
                 <label>📞 Telefone</label>
                 <input
                     type="tel"
                     name="phone"
                     value={formData.phone}
                     onChange={handleChange}
-                    placeholder="(11) 98765-4321"
-                    required
+                    placeholder="(51) 98765-4321"
+                />
+            </div>
+            <div className="form-group">
+                <label>🏢 Empresa</label>
+                <input
+                    type="text"
+                    name="company"
+                    value={formData.company}
+                    onChange={handleChange}
+                    placeholder="Nome da empresa (opcional)"
                 />
             </div>
             <button type="submit" className="btn btn-primary w-full">

@@ -30,6 +30,11 @@ public class ParticipantController {
         return ResponseEntity.ok(participantService.getParticipantsByEvent(eventId));
     }
     
+    @GetMapping("/user/{userId}")
+    public ResponseEntity<List<Participant>> getParticipantsByUser(@PathVariable Long userId) {
+        return ResponseEntity.ok(participantService.getParticipantsByUser(userId));
+    }
+    
     @GetMapping("/event/{eventId}/pending")
     public ResponseEntity<List<Participant>> getPendingParticipants(@PathVariable Long eventId) {
         return ResponseEntity.ok(participantService.getPendingParticipants(eventId));
@@ -54,11 +59,27 @@ public class ParticipantController {
         return ResponseEntity.ok(stats);
     }
     
+    @GetMapping("/user/{userId}/stats")
+    public ResponseEntity<Map<String, Long>> getUserStats(@PathVariable Long userId) {
+        Map<String, Long> stats = new HashMap<>();
+        stats.put("totalEvents", participantService.getUserEventsCount(userId));
+        return ResponseEntity.ok(stats);
+    }
+    
     @GetMapping("/{id}")
     public ResponseEntity<Participant> getParticipantById(@PathVariable Long id) {
         return participantService.getParticipantById(id)
                 .map(ResponseEntity::ok)
                 .orElse(ResponseEntity.notFound().build());
+    }
+    
+    // Novo endpoint: Usuário se inscrever em evento
+    @PostMapping("/user/{userId}/event/{eventId}/register")
+    public ResponseEntity<Participant> registerUserToEvent(
+            @PathVariable Long userId,
+            @PathVariable Long eventId) {
+        Participant participant = participantService.registerUserToEvent(userId, eventId);
+        return ResponseEntity.status(HttpStatus.CREATED).body(participant);
     }
     
     @PostMapping("/event/{eventId}")
@@ -89,6 +110,14 @@ public class ParticipantController {
     public ResponseEntity<Participant> checkInParticipant(@PathVariable Long id) {
         Participant participant = participantService.checkInParticipant(id);
         return ResponseEntity.ok(participant);
+    }
+    
+    @PostMapping("/{id}/send-certificate")
+    public ResponseEntity<Map<String, String>> sendCertificate(@PathVariable Long id) {
+        participantService.sendCertificateToParticipant(id);
+        Map<String, String> response = new HashMap<>();
+        response.put("message", "Certificado enviado com sucesso!");
+        return ResponseEntity.ok(response);
     }
     
     @DeleteMapping("/{id}")

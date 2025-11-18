@@ -6,6 +6,7 @@ import PaymentsPage from './pages/PaymentsPage';
 import NotificationsPage from './pages/NotificationsPage';
 import EventsPage from './pages/EventsPage';
 import ParticipantsPage from './pages/ParticipantsPage';
+import MyEventsPage from './pages/MyEventsPage';
 import './App.css';
 
 function App() {
@@ -27,6 +28,8 @@ function App() {
         return <EventsPage />;
       case 'participants':
         return <ParticipantsPage />;
+      case 'myevents':
+        return <MyEventsPage />;
       default:
         return <UsersPage />;
     }
@@ -78,6 +81,12 @@ function App() {
             className={currentPage === 'participants' ? 'active' : ''}
           >
             👤 Participantes
+          </button>
+          <button 
+            onClick={() => setCurrentPage('myevents')} 
+            className={currentPage === 'myevents' ? 'active' : ''}
+          >
+            🎫 Meus Eventos
           </button>
         </div>
       </nav>
