@@ -1,8 +1,5 @@
 import React, { useState } from 'react';
 import UsersPage from './pages/UsersPage';
-import ProductsPage from './pages/ProductsPage';
-import OrdersPage from './pages/OrdersPage';
-import PaymentsPage from './pages/PaymentsPage';
 import NotificationsPage from './pages/NotificationsPage';
 import EventsPage from './pages/EventsPage';
 import ParticipantsPage from './pages/ParticipantsPage';
@@ -16,12 +13,6 @@ function App() {
     switch (currentPage) {
       case 'users':
         return <UsersPage />;
-      case 'products':
-        return <ProductsPage />;
-      case 'orders':
-        return <OrdersPage />;
-      case 'payments':
-        return <PaymentsPage />;
       case 'notifications':
         return <NotificationsPage />;
       case 'events':
@@ -45,24 +36,6 @@ function App() {
             className={currentPage === 'users' ? 'active' : ''}
           >
             👥 Usuários
-          </button>
-          <button 
-            onClick={() => setCurrentPage('products')} 
-            className={currentPage === 'products' ? 'active' : ''}
-          >
-            📦 Produtos
-          </button>
-          <button 
-            onClick={() => setCurrentPage('orders')} 
-            className={currentPage === 'orders' ? 'active' : ''}
-          >
-            🛒 Pedidos
-          </button>
-          <button 
-            onClick={() => setCurrentPage('payments')} 
-            className={currentPage === 'payments' ? 'active' : ''}
-          >
-            💳 Pagamentos
           </button>
           <button 
             onClick={() => setCurrentPage('notifications')} 
