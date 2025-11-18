@@ -4,6 +4,8 @@ import ProductsPage from './pages/ProductsPage';
 import OrdersPage from './pages/OrdersPage';
 import PaymentsPage from './pages/PaymentsPage';
 import NotificationsPage from './pages/NotificationsPage';
+import EventsPage from './pages/EventsPage';
+import ParticipantsPage from './pages/ParticipantsPage';
 import './App.css';
 
 function App() {
@@ -21,6 +23,10 @@ function App() {
         return <PaymentsPage />;
       case 'notifications':
         return <NotificationsPage />;
+      case 'events':
+        return <EventsPage />;
+      case 'participants':
+        return <ParticipantsPage />;
       default:
         return <UsersPage />;
     }
@@ -60,6 +66,18 @@ function App() {
             className={currentPage === 'notifications' ? 'active' : ''}
           >
             🔔 Notificações
+          </button>
+          <button 
+            onClick={() => setCurrentPage('events')} 
+            className={currentPage === 'events' ? 'active' : ''}
+          >
+            🎉 Eventos
+          </button>
+          <button 
+            onClick={() => setCurrentPage('participants')} 
+            className={currentPage === 'participants' ? 'active' : ''}
+          >
+            👤 Participantes
           </button>
         </div>
       </nav>

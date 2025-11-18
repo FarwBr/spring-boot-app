@@ -1,5 +1,6 @@
 package com.example.service;
 
+import com.example.exception.ResourceNotFoundException;
 import com.example.model.User;
 import com.example.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -41,7 +42,7 @@ public class UserService {
     
     public void deleteUser(Long id) {
         User user = userRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("User not found"));
+                .orElseThrow(() -> new ResourceNotFoundException("User", "id", id));
         userRepository.delete(user);
     }
 }
