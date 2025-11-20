@@ -1,4 +1,5 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
+import LoginPage from './pages/LoginPage';
 import UsersPage from './pages/UsersPage';
 import NotificationsPage from './pages/NotificationsPage';
 import EventsPage from './pages/EventsPage';
@@ -7,10 +8,45 @@ import MyEventsPage from './pages/MyEventsPage';
 import './App.css';
 
 function App() {
-  const [currentPage, setCurrentPage] = useState('users');
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const [user, setUser] = useState(null);
+  const [currentPage, setCurrentPage] = useState('home');
+
+  useEffect(() => {
+    // Verificar se há usuário logado
+    const token = localStorage.getItem('token');
+    const userData = localStorage.getItem('user');
+    
+    if (token && userData) {
+      setIsAuthenticated(true);
+      setUser(JSON.parse(userData));
+      setCurrentPage('events'); // Página inicial após login
+    }
+  }, []);
+
+  const handleLogin = (userData) => {
+    setIsAuthenticated(true);
+    setUser(userData);
+    setCurrentPage('events');
+  };
+
+  const handleLogout = () => {
+    localStorage.removeItem('token');
+    localStorage.removeItem('user');
+    setIsAuthenticated(false);
+    setUser(null);
+    setCurrentPage('home');
+  };
 
   const renderPage = () => {
     switch (currentPage) {
+      case 'home':
+        return (
+          <div className="welcome-page">
+            <h1>🎫 Bem-vindo ao Sistema de Eventos</h1>
+            <p>Gerencie eventos, participantes e certificados em um só lugar.</p>
+          </div>
+        );
       case 'users':
         return <UsersPage />;
       case 'notifications':
@@ -22,44 +58,83 @@ function App() {
       case 'myevents':
         return <MyEventsPage />;
       default:
-        return <UsersPage />;
+        return (
+          <div className="welcome-page">
+            <h1>🎫 Bem-vindo ao Sistema de Eventos</h1>
+            <p>Gerencie eventos, participantes e certificados em um só lugar.</p>
+          </div>
+        );
     }
   };
+
+  // Se não estiver autenticado, mostrar tela de login
+  if (!isAuthenticated) {
+    return <LoginPage onLogin={handleLogin} />;
+  }
+
+  // Se estiver autenticado, mostrar dashboard
+  const isAdmin = user?.role === 'ADMIN';
 
   return (
     <div className="App">
       <nav>
-        <h1>Sistema de Gerenciamento</h1>
+        <h1>🎫 Sistema de Eventos</h1>
+        <div className="user-info">
+          <span>👤 {user?.name}</span>
+          <span className="user-role">{isAdmin ? '👨‍💼 Admin' : '👨 Cliente'}</span>
+        </div>
         <div className="nav-buttons">
           <button 
-            onClick={() => setCurrentPage('users')} 
-            className={currentPage === 'users' ? 'active' : ''}
+            onClick={() => setCurrentPage('home')} 
+            className={currentPage === 'home' ? 'active' : ''}
           >
-            👥 Usuários
+            🏠 Início
           </button>
-          <button 
-            onClick={() => setCurrentPage('notifications')} 
-            className={currentPage === 'notifications' ? 'active' : ''}
-          >
-            🔔 Notificações
-          </button>
+          
+          {isAdmin && (
+            <button 
+              onClick={() => setCurrentPage('users')} 
+              className={currentPage === 'users' ? 'active' : ''}
+            >
+              👥 Usuários
+            </button>
+          )}
+          
           <button 
             onClick={() => setCurrentPage('events')} 
             className={currentPage === 'events' ? 'active' : ''}
           >
             🎉 Eventos
           </button>
-          <button 
-            onClick={() => setCurrentPage('participants')} 
-            className={currentPage === 'participants' ? 'active' : ''}
-          >
-            👤 Participantes
-          </button>
+          
+          {isAdmin && (
+            <button 
+              onClick={() => setCurrentPage('participants')} 
+              className={currentPage === 'participants' ? 'active' : ''}
+            >
+              👤 Participantes
+            </button>
+          )}
+          
           <button 
             onClick={() => setCurrentPage('myevents')} 
             className={currentPage === 'myevents' ? 'active' : ''}
           >
             🎫 Meus Eventos
+          </button>
+          
+          <button 
+            onClick={() => setCurrentPage('notifications')} 
+            className={currentPage === 'notifications' ? 'active' : ''}
+          >
+            🔔 Notificações
+          </button>
+          
+          <button 
+            onClick={handleLogout} 
+            className="btn-logout"
+          >
+            🚪 Sair
           </button>
         </div>
       </nav>
