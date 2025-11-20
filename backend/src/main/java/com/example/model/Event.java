@@ -45,6 +45,9 @@ public class Event {
     private Boolean active = true;
     
     @Column(nullable = false)
+    private Boolean finished = false;
+    
+    @Column(nullable = false)
     private Integer maxCapacity = 0;
     
     @OneToMany(mappedBy = "event", cascade = CascadeType.ALL, orphanRemoval = true)

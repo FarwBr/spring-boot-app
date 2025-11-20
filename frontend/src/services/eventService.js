@@ -1,6 +1,6 @@
 import axios from 'axios';
 
-const API_URL = 'http://localhost:8082/api';
+const API_URL = 'http://177.44.248.75:8082/api';
 
 export const getAllEvents = async () => {
     const response = await axios.get(`${API_URL}/events`);
@@ -34,6 +34,11 @@ export const updateEvent = async (id, event) => {
 
 export const toggleEventStatus = async (id) => {
     const response = await axios.patch(`${API_URL}/events/${id}/toggle-active`);
+    return response.data;
+};
+
+export const finishEvent = async (id) => {
+    const response = await axios.post(`${API_URL}/events/${id}/finish`);
     return response.data;
 };
 

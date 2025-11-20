@@ -71,6 +71,12 @@ public class EventController {
         return ResponseEntity.ok(event);
     }
     
+    @PostMapping("/{id}/finish")
+    public ResponseEntity<Event> finishEvent(@PathVariable Long id) {
+        Event event = eventService.finishEvent(id);
+        return ResponseEntity.ok(event);
+    }
+    
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deleteEvent(@PathVariable Long id) {
         eventService.deleteEvent(id);
