@@ -5,10 +5,12 @@ import com.example.exception.ResourceNotFoundException;
 import com.example.model.Event;
 import com.example.model.Participant;
 import com.example.model.User;
+import com.example.model.UserRole;
 import com.example.repository.EventRepository;
 import com.example.repository.ParticipantRepository;
 import com.example.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
@@ -26,6 +28,9 @@ public class ParticipantService {
     
     @Autowired
     private UserRepository userRepository;
+    
+    @Autowired
+    private PasswordEncoder passwordEncoder;
     
     @Autowired
     private CertificateService certificateService;
@@ -101,6 +106,28 @@ public class ParticipantService {
         Event event = eventRepository.findById(eventId)
                 .orElseThrow(() -> new ResourceNotFoundException("Event", "id", eventId));
         
+        // Criar User se tiver email e não existir
+        User user = null;
+        if (participant.getEmail() != null && !participant.getEmail().isEmpty()) {
+            Optional<User> existingUser = userRepository.findByEmail(participant.getEmail());
+            
+            if (existingUser.isPresent()) {
+                // Usar usuário existente
+                user = existingUser.get();
+            } else {
+                // Criar novo usuário com senha padrão "123"
+                user = new User();
+                user.setName(participant.getName());
+                user.setEmail(participant.getEmail());
+                user.setPhone(participant.getPhone());
+                user.setCompany(participant.getCompany());
+                user.setPassword(passwordEncoder.encode("123"));
+                user.setRole(UserRole.CLIENT);
+                user = userRepository.save(user);
+            }
+        }
+        
+        participant.setUser(user);
         participant.setEvent(event);
         participant.setIsWalkIn(true);
         return participantRepository.save(participant);
