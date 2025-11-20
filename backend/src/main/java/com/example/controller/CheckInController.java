@@ -15,7 +15,6 @@ import java.util.Map;
 
 @RestController
 @RequestMapping("/api/checkins")
-@CrossOrigin(origins = "*")
 public class CheckInController {
     
     @Autowired
