@@ -54,6 +54,23 @@ services:
       - spring-network
     restart: unless-stopped
 
+  api-gateway:
+    build:
+      context: ./api-gateway
+      dockerfile: Dockerfile
+    container_name: api-gateway
+    ports:
+      - "8081:8081"  # User Service
+      - "8082:8082"  # Event Service
+      - "8083:8083"  # Participant Service
+      - "8084:8084"  # Certificate Service
+      - "8085:8085"  # Notification Service
+    depends_on:
+      - backend
+    networks:
+      - spring-network
+    restart: unless-stopped
+
 networks:
   spring-network:
     driver: bridge
