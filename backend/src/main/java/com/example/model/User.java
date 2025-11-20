@@ -6,6 +6,7 @@ import jakarta.validation.constraints.NotBlank;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 
 import java.time.LocalDateTime;
 
@@ -28,6 +29,14 @@ public class User {
     @Email(message = "Email should be valid")
     @Column(nullable = false, unique = true)
     private String email;
+    
+    @JsonIgnore
+    @Column(nullable = false)
+    private String password;
+    
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false)
+    private UserRole role = UserRole.CLIENT;
     
     @Column(nullable = true)
     private String phone;
