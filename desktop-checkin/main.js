@@ -8,7 +8,8 @@ let db;
 let SQL;
 let mainWindow;
 
-const BACKEND_URL = process.env.BACKEND_URL || 'http://localhost:8080/api';
+// Usar IP da VM da Univates e porta do API Gateway
+const BACKEND_URL = process.env.BACKEND_URL || 'http://177.44.248.75:8082/api';
 
 async function initDatabase() {
   const dbPath = path.join(app.getPath('userData'), 'checkin.db');

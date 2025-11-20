@@ -111,16 +111,20 @@ CREATE TABLE checkins (
 
 ### Mudar URL do Backend
 
-Edite `main.js`:
+Por padrão, o aplicativo se conecta ao servidor da Univates:
+- **URL**: `http://177.44.248.75:8082/api`
+- **Porta**: 8082 (API Gateway - Events)
+
+Para mudar, edite `main.js`:
 
 ```javascript
-const BACKEND_URL = 'http://SEU-SERVIDOR:8080/api/checkins';
+const BACKEND_URL = 'http://SEU-SERVIDOR:PORTA/api';
 ```
 
 Ou defina variável de ambiente:
 
 ```powershell
-$env:BACKEND_URL="http://seu-servidor:8080/api/checkins"
+$env:BACKEND_URL="http://seu-servidor:8082/api"
 npm start
 ```
 
