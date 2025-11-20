@@ -4,6 +4,7 @@ import com.example.exception.ResourceNotFoundException;
 import com.example.model.User;
 import com.example.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -14,6 +15,9 @@ public class UserService {
     
     @Autowired
     private UserRepository userRepository;
+    
+    @Autowired
+    private PasswordEncoder passwordEncoder;
     
     public List<User> getAllUsers() {
         return userRepository.findAll();
@@ -26,6 +30,10 @@ public class UserService {
     public User createUser(User user) {
         if (userRepository.existsByEmail(user.getEmail())) {
             throw new RuntimeException("Email already exists");
+        }
+        // Define senha padrão "123" se não foi fornecida
+        if (user.getPassword() == null || user.getPassword().isEmpty()) {
+            user.setPassword(passwordEncoder.encode("123"));
         }
         return userRepository.save(user);
     }
