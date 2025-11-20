@@ -103,6 +103,23 @@ function EventsPage() {
         }
     };
 
+    const handleFinishEvent = async (id) => {
+        if (window.confirm('Tem certeza que deseja finalizar este evento?\n\nIsso irá:\n✅ Gerar certificados para todos os participantes com check-in\n📧 Enviar certificados por email\n\n⚠️ Esta ação não pode ser desfeita!')) {
+            try {
+                setLoading(true);
+                await eventService.finishEvent(id);
+                alert('✅ Evento finalizado com sucesso!\n🎓 Certificados estão sendo gerados e enviados por email.');
+                loadEvents();
+            } catch (err) {
+                setError('Erro ao finalizar evento: ' + (err.response?.data || err.message));
+                alert('❌ Erro ao finalizar evento. Verifique o console para mais detalhes.');
+                console.error(err);
+            } finally {
+                setLoading(false);
+            }
+        }
+    };
+
     const formatDateTime = (dateString) => {
         return new Date(dateString).toLocaleString('pt-BR');
     };
@@ -293,6 +310,24 @@ function EventsPage() {
                                             >
                                                 {event.active ? '⏸️ Desativar' : '▶️ Ativar'}
                                             </button>
+                                            {event.active && !event.finished && (
+                                                <button 
+                                                    onClick={() => handleFinishEvent(event.id)} 
+                                                    className="btn btn-success btn-sm"
+                                                    style={{marginRight: '5px'}}
+                                                    title="Finalizar evento e gerar certificados"
+                                                >
+                                                    🎓 Finalizar
+                                                </button>
+                                            )}
+                                            {event.finished && (
+                                                <span 
+                                                    className="badge badge-info"
+                                                    style={{marginRight: '5px', padding: '4px 8px'}}
+                                                >
+                                                    ✅ Finalizado
+                                                </span>
+                                            )}
                                             <button 
                                                 onClick={() => handleDelete(event.id)} 
                                                 className="btn btn-danger btn-sm"

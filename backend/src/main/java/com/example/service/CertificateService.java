@@ -1,17 +1,24 @@
 package com.example.service;
 
+import com.example.model.Certificate;
 import com.example.model.Event;
 import com.example.model.Participant;
+import com.example.repository.CertificateRepository;
 import com.itextpdf.text.*;
 import com.itextpdf.text.pdf.PdfWriter;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.io.ByteArrayOutputStream;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
+import java.util.Optional;
 
 @Service
 public class CertificateService {
+    
+    @Autowired
+    private CertificateRepository certificateRepository;
     
     private static final Font TITLE_FONT = new Font(Font.FontFamily.HELVETICA, 32, Font.BOLD, new BaseColor(102, 126, 234));
     private static final Font SUBTITLE_FONT = new Font(Font.FontFamily.HELVETICA, 20, Font.BOLD, BaseColor.DARK_GRAY);
@@ -21,6 +28,9 @@ public class CertificateService {
     
     public byte[] generateCertificate(Participant participant, Event event) {
         try {
+            // Criar ou buscar certificado no banco
+            Certificate certificate = getOrCreateCertificate(participant, event);
+            
             ByteArrayOutputStream baos = new ByteArrayOutputStream();
             Document document = new Document(PageSize.A4.rotate()); // Paisagem
             PdfWriter.getInstance(document, baos);
@@ -89,7 +99,7 @@ public class CertificateService {
                 document.add(checkIn);
             }
             
-            document.add(new Paragraph("\n\n\n"));
+            document.add(new Paragraph("\n\n"));
             
             // Data de emissão
             String issueDate = LocalDateTime.now().format(DateTimeFormatter.ofPattern("dd 'de' MMMM 'de' yyyy"));
@@ -97,6 +107,12 @@ public class CertificateService {
                 new Font(Font.FontFamily.HELVETICA, 10, Font.NORMAL, BaseColor.GRAY));
             issued.setAlignment(Element.ALIGN_CENTER);
             document.add(issued);
+            
+            // Código de validação
+            Paragraph validationCode = new Paragraph("Código de Validação: " + certificate.getValidationCode(),
+                new Font(Font.FontFamily.HELVETICA, 10, Font.BOLD, new BaseColor(102, 126, 234)));
+            validationCode.setAlignment(Element.ALIGN_CENTER);
+            document.add(validationCode);
             
             document.add(new Paragraph("\n\n"));
             
@@ -126,5 +142,21 @@ public class CertificateService {
         rect.setBorderWidth(2);
         rect.setBorderColor(new BaseColor(102, 126, 234));
         document.add(rect);
+    }
+    
+    private Certificate getOrCreateCertificate(Participant participant, Event event) {
+        Optional<Certificate> existing = certificateRepository.findByParticipantIdAndEventId(
+            participant.getId(), 
+            event.getId()
+        );
+        
+        if (existing.isPresent()) {
+            return existing.get();
+        }
+        
+        Certificate certificate = new Certificate();
+        certificate.setParticipant(participant);
+        certificate.setEvent(event);
+        return certificateRepository.save(certificate);
     }
 }

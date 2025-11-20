@@ -5,14 +5,23 @@ import NotificationsPage from './pages/NotificationsPage';
 import EventsPage from './pages/EventsPage';
 import ParticipantsPage from './pages/ParticipantsPage';
 import MyEventsPage from './pages/MyEventsPage';
+import CertificateValidation from './pages/CertificateValidation';
 import './App.css';
 
 function App() {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [user, setUser] = useState(null);
   const [currentPage, setCurrentPage] = useState('home');
+  const [showPublicValidation, setShowPublicValidation] = useState(false);
 
   useEffect(() => {
+    // Verificar se URL é para validação pública
+    const path = window.location.pathname;
+    if (path === '/validate' || path === '/validar') {
+      setShowPublicValidation(true);
+      return;
+    }
+    
     // Verificar se há usuário logado
     const token = localStorage.getItem('token');
     const userData = localStorage.getItem('user');
@@ -23,6 +32,11 @@ function App() {
       setCurrentPage('events'); // Página inicial após login
     }
   }, []);
+
+  // Página pública de validação
+  if (showPublicValidation) {
+    return <CertificateValidation />;
+  }
 
   const handleLogin = (userData) => {
     setIsAuthenticated(true);

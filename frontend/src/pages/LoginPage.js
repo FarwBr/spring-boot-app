@@ -211,6 +211,26 @@ function LoginPage({ onLogin }) {
                     <p><strong>Email:</strong> admin@example.com</p>
                     <p><strong>Senha:</strong> admin123</p>
                 </div>
+
+                <div className="demo-credentials" style={{marginTop: '20px', borderColor: '#6366f1'}}>
+                    <h3>🎓 Validar Certificado</h3>
+                    <p>Recebeu um certificado? Valide sua autenticidade!</p>
+                    <a 
+                        href="/validate" 
+                        className="btn btn-secondary"
+                        style={{
+                            display: 'inline-block',
+                            padding: '10px 20px',
+                            backgroundColor: '#6366f1',
+                            color: 'white',
+                            textDecoration: 'none',
+                            borderRadius: '5px',
+                            marginTop: '10px'
+                        }}
+                    >
+                        🔍 Validar Certificado
+                    </a>
+                </div>
             </div>
         </div>
     );
