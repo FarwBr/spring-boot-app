@@ -54,21 +54,25 @@ public class SecurityConfig {
                 .cors(cors -> cors.configure(http))
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(auth -> auth
+                        // TEMPORÁRIO: Liberar todos endpoints para desenvolvimento
+                        .anyRequest().permitAll()
+                        
+                        // TODO: Reativar autenticação depois dos testes:
                         // Public endpoints
-                        .requestMatchers("/api/auth/**").permitAll()
-                        .requestMatchers("/api/certificates/validate/**").permitAll()
-                        .requestMatchers(HttpMethod.GET, "/api/events/active").permitAll()
-                        .requestMatchers("/swagger-ui/**", "/v3/api-docs/**").permitAll()
-                        
-                        // Admin only endpoints
-                        .requestMatchers(HttpMethod.POST, "/api/events").hasRole("ADMIN")
-                        .requestMatchers(HttpMethod.PUT, "/api/events/**").hasRole("ADMIN")
-                        .requestMatchers(HttpMethod.DELETE, "/api/events/**").hasRole("ADMIN")
-                        .requestMatchers(HttpMethod.DELETE, "/api/participants/**").hasRole("ADMIN")
-                        .requestMatchers("/api/users/**").hasRole("ADMIN")
-                        
-                        // Authenticated endpoints
-                        .anyRequest().authenticated()
+                        //.requestMatchers("/api/auth/**").permitAll()
+                        //.requestMatchers("/api/certificates/validate/**").permitAll()
+                        //.requestMatchers(HttpMethod.GET, "/api/events/active").permitAll()
+                        //.requestMatchers("/swagger-ui/**", "/v3/api-docs/**").permitAll()
+                        //
+                        //// Admin only endpoints
+                        //.requestMatchers(HttpMethod.POST, "/api/events").hasRole("ADMIN")
+                        //.requestMatchers(HttpMethod.PUT, "/api/events/**").hasRole("ADMIN")
+                        //.requestMatchers(HttpMethod.DELETE, "/api/events/**").hasRole("ADMIN")
+                        //.requestMatchers(HttpMethod.DELETE, "/api/participants/**").hasRole("ADMIN")
+                        //.requestMatchers("/api/users/**").hasRole("ADMIN")
+                        //
+                        //// Authenticated endpoints
+                        //.anyRequest().authenticated()
                 )
                 .authenticationProvider(authenticationProvider())
                 .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
