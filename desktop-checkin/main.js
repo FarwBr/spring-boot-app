@@ -11,6 +11,7 @@ let mainWindow;
 // Usar IP da VM da Univates e porta do API Gateway
 const BACKEND_URL = process.env.BACKEND_URL || 'http://177.44.248.75:8082/api';
 const PARTICIPANTS_URL = process.env.PARTICIPANTS_URL || 'http://177.44.248.75:8083/api';
+const CHECKIN_URL = process.env.CHECKIN_URL || 'http://177.44.248.75:8084/api';
 
 async function initDatabase() {
   const dbPath = path.join(app.getPath('userData'), 'checkin.db');
@@ -335,7 +336,7 @@ async function trySync() {
     
     for (const c of checkins) {
       try {
-        await axios.post(`${BACKEND_URL}/checkins?eventId=${c[1]}&participantId=${c[2]}`, {
+        await axios.post(`${CHECKIN_URL}/checkins?eventId=${c[1]}&participantId=${c[2]}`, {
           checkInTime: c[3],
           notes: c[4] || ''
         });
