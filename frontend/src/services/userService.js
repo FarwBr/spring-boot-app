@@ -1,6 +1,6 @@
 import axios from 'axios';
 
-const API_URL = 'http://localhost:8081/api';
+const API_URL = 'http://177.44.248.75:8081/api';
 
 export const userService = {
     getAllUsers: async () => {
