@@ -18,8 +18,21 @@ function EventsPage() {
     const [editingId, setEditingId] = useState(null);
     
     // Verificar se usuário é ADMIN
-    const user = JSON.parse(localStorage.getItem('user') || '{}');
-    const isAdmin = user?.role === 'ADMIN';
+    const [user, setUser] = useState(null);
+    const [isAdmin, setIsAdmin] = useState(false);
+    
+    useEffect(() => {
+        const userData = localStorage.getItem('user');
+        if (userData) {
+            try {
+                const parsed = JSON.parse(userData);
+                setUser(parsed);
+                setIsAdmin(parsed?.role === 'ADMIN');
+            } catch (e) {
+                console.error('Erro ao ler usuário do localStorage:', e);
+            }
+        }
+    }, []);
 
     useEffect(() => {
         loadEvents();
@@ -117,6 +130,41 @@ function EventsPage() {
             } catch (err) {
                 setError('Erro ao finalizar evento: ' + (err.response?.data || err.message));
                 alert('❌ Erro ao finalizar evento. Verifique o console para mais detalhes.');
+                console.error(err);
+            } finally {
+                setLoading(false);
+            }
+        }
+    };
+
+    const handleRegisterToEvent = async (eventId) => {
+        if (!user || !user.id) {
+            setError('Erro: Usuário não identificado. Faça login novamente.');
+            return;
+        }
+
+        if (window.confirm('Deseja se inscrever neste evento?')) {
+            try {
+                setLoading(true);
+                const response = await fetch(`http://177.44.248.75:8083/api/participants/user/${user.id}/event/${eventId}/register`, {
+                    method: 'POST',
+                    headers: {
+                        'Authorization': `Bearer ${localStorage.getItem('token')}`,
+                        'Content-Type': 'application/json'
+                    }
+                });
+
+                if (response.ok) {
+                    alert('✅ Inscrição realizada com sucesso!\n\nVocê pode visualizar seus eventos em "🎫 Meus Eventos".');
+                    loadEvents();
+                } else {
+                    const errorData = await response.json();
+                    setError(errorData.message || 'Erro ao realizar inscrição');
+                    alert('❌ ' + (errorData.message || 'Erro ao realizar inscrição. Você já pode estar inscrito ou o evento está lotado.'));
+                }
+            } catch (err) {
+                setError('Erro ao realizar inscrição');
+                alert('❌ Erro ao realizar inscrição. Tente novamente.');
                 console.error(err);
             } finally {
                 setLoading(false);
@@ -350,9 +398,14 @@ function EventsPage() {
                                                     </button>
                                                 </>
                                             ) : (
-                                                <span style={{color: '#666', fontSize: '14px'}}>
-                                                    📋 Visualização
-                                                </span>
+                                                <button 
+                                                    onClick={() => handleRegisterToEvent(event.id)}
+                                                    className="btn btn-success btn-sm"
+                                                    disabled={!event.active || event.finished || loading}
+                                                    title="Inscrever-se neste evento"
+                                                >
+                                                    {event.active && !event.finished ? '🎫 Inscrever-se' : '🚫 Indisponível'}
+                                                </button>
                                             )}
                                         </td>
                                     </tr>

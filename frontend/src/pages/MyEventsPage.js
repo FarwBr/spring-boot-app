@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 
-const API_URL = process.env.REACT_APP_API_URL || 'http://localhost:8080/api';
+const API_URL = 'http://177.44.248.75:8083/api';
 
 function MyEventsPage() {
   const [users, setUsers] = useState([]);
