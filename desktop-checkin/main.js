@@ -160,13 +160,14 @@ ipcMain.handle('sync-participants', async (event, eventId) => {
     const response = await axios.get(`${BACKEND_URL}/participants/event/${eventId}`, { timeout: 5000 });
     const participants = response.data;
     
-    // Limpar participantes do evento e inserir novos
-    db.run(`DELETE FROM participants WHERE eventId = ${eventId}`);
+    // Limpar apenas participantes sincronizados (preservar walk-ins locais pendentes)
+    db.run(`DELETE FROM participants WHERE eventId = ${eventId} AND synced = 1`);
     
+    // Inserir/atualizar participantes do servidor
     participants.forEach(p => {
       db.run(
-        'INSERT INTO participants (id, eventId, name, email, phone, company, checkedIn, checkInTime, isWalkIn, synced) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, 1)',
-        [p.id, eventId, p.name, p.email, p.phone, p.company, p.checkedIn ? 1 : 0, p.checkInTime, p.isWalkIn ? 1 : 0]
+        'INSERT OR REPLACE INTO participants (id, eventId, name, email, phone, company, checkedIn, checkInTime, isWalkIn, synced) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, 1)',
+        [p.id, eventId, p.name || '', p.email || '', p.phone || '', p.company || '', p.checkedIn ? 1 : 0, p.checkInTime, p.isWalkIn ? 1 : 0]
       );
     });
     
@@ -274,7 +275,9 @@ async function trySync() {
       return { success: false, message: 'Offline' };
     }
     
-    // Sincronizar walk-ins pendentes
+    let totalSynced = 0;
+    
+    // 1. ENVIAR walk-ins pendentes para o servidor
     const walkinsResult = db.exec('SELECT * FROM participants WHERE synced = 0 AND isWalkIn = 1');
     const walkins = walkinsResult.length > 0 ? walkinsResult[0].values : [];
     
@@ -289,17 +292,42 @@ async function trySync() {
         
         if (response.status === 201) {
           db.run(`UPDATE participants SET id = ${response.data.id}, synced = 1 WHERE id = ${w[0]}`);
+          totalSynced++;
         }
       } catch (err) {
         console.error('Erro ao sincronizar walk-in:', err);
       }
     }
     
-    // Sincronizar check-ins pendentes
+    // 2. BAIXAR participantes do servidor para TODOS os eventos locais
+    const eventsResult = db.exec('SELECT id FROM events');
+    const events = eventsResult.length > 0 ? eventsResult[0].values : [];
+    
+    for (const eventRow of events) {
+      const eventId = eventRow[0];
+      try {
+        const response = await axios.get(`${BACKEND_URL}/participants/event/${eventId}`, { timeout: 5000 });
+        const serverParticipants = response.data;
+        
+        // Limpar participantes SINCRONIZADOS (não remover walk-ins locais pendentes)
+        db.run(`DELETE FROM participants WHERE eventId = ${eventId} AND synced = 1`);
+        
+        // Inserir participantes do servidor
+        serverParticipants.forEach(p => {
+          db.run(
+            'INSERT OR REPLACE INTO participants (id, eventId, name, email, phone, company, checkedIn, checkInTime, isWalkIn, synced) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, 1)',
+            [p.id, eventId, p.name || '', p.email || '', p.phone || '', p.company || '', p.checkedIn ? 1 : 0, p.checkInTime, p.isWalkIn ? 1 : 0]
+          );
+        });
+      } catch (err) {
+        console.error(`Erro ao baixar participantes do evento ${eventId}:`, err);
+      }
+    }
+    
+    // 3. ENVIAR check-ins pendentes
     const checkinsResult = db.exec('SELECT * FROM checkins WHERE synced = 0');
     const checkins = checkinsResult.length > 0 ? checkinsResult[0].values : [];
     
-    let syncedCount = 0;
     for (const c of checkins) {
       try {
         await axios.post(`${BACKEND_URL}/checkins?eventId=${c[1]}&participantId=${c[2]}`, {
@@ -308,7 +336,7 @@ async function trySync() {
         });
         
         db.run(`UPDATE checkins SET synced = 1 WHERE id = ${c[0]}`);
-        syncedCount++;
+        totalSynced++;
       } catch (err) {
         console.error('Erro ao sincronizar check-in:', err);
       }
@@ -316,14 +344,14 @@ async function trySync() {
     
     saveDatabase();
     
-    if (syncedCount > 0 && mainWindow) {
+    if (totalSynced > 0 && mainWindow) {
       mainWindow.webContents.send('sync-completed', {
-        count: syncedCount,
-        message: `${syncedCount} check-in(s) sincronizado(s)!`
+        count: totalSynced,
+        message: `${totalSynced} registro(s) sincronizado(s)!`
       });
     }
     
-    return { success: true, count: syncedCount };
+    return { success: true, count: totalSynced };
   } catch (error) {
     return { success: false, error: error.message };
   }
