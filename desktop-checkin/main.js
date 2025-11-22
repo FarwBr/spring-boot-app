@@ -10,6 +10,7 @@ let mainWindow;
 
 // Usar IP da VM da Univates e porta do API Gateway
 const BACKEND_URL = process.env.BACKEND_URL || 'http://177.44.248.75:8082/api';
+const PARTICIPANTS_URL = process.env.PARTICIPANTS_URL || 'http://177.44.248.75:8083/api';
 
 async function initDatabase() {
   const dbPath = path.join(app.getPath('userData'), 'checkin.db');
@@ -157,7 +158,7 @@ ipcMain.handle('sync-participants', async (event, eventId) => {
     const connection = await checkConnection();
     if (!connection.online) return { success: false, message: 'Offline' };
     
-    const response = await axios.get(`${BACKEND_URL}/participants/event/${eventId}`, { timeout: 5000 });
+    const response = await axios.get(`${PARTICIPANTS_URL}/participants/event/${eventId}`, { timeout: 5000 });
     const participants = response.data;
     
     // Limpar apenas participantes sincronizados (preservar walk-ins locais pendentes)
@@ -287,7 +288,7 @@ async function trySync() {
     
     for (const w of walkins) {
       try {
-        const response = await axios.post(`${BACKEND_URL}/participants/event/${w[1]}/walk-in`, {
+        const response = await axios.post(`${PARTICIPANTS_URL}/participants/event/${w[1]}/walk-in`, {
           name: w[2],
           email: w[3],
           phone: w[4],
@@ -310,7 +311,7 @@ async function trySync() {
     for (const eventRow of events) {
       const eventId = eventRow[0];
       try {
-        const response = await axios.get(`${BACKEND_URL}/participants/event/${eventId}`, { timeout: 5000 });
+        const response = await axios.get(`${PARTICIPANTS_URL}/participants/event/${eventId}`, { timeout: 5000 });
         const serverParticipants = response.data;
         
         // Limpar participantes SINCRONIZADOS (não remover walk-ins locais pendentes)
@@ -404,7 +405,7 @@ async function forceSyncFromServer() {
     for (const eventRow of events) {
       const eventId = eventRow[0];
       try {
-        const response = await axios.get(`${BACKEND_URL}/participants/event/${eventId}`, { timeout: 5000 });
+        const response = await axios.get(`${PARTICIPANTS_URL}/participants/event/${eventId}`, { timeout: 5000 });
         const serverParticipants = response.data;
         
         serverParticipants.forEach(p => {
