@@ -67,8 +67,8 @@ public class Participant {
         createdAt = LocalDateTime.now();
         updatedAt = LocalDateTime.now();
         
-        // Se tem user, copiar dados do user
-        if (user != null && name == null) {
+        // Se tem user, SEMPRE copiar dados do user para facilitar queries e exibição
+        if (user != null) {
             name = user.getName();
             email = user.getEmail();
             phone = user.getPhone();
@@ -79,6 +79,14 @@ public class Participant {
     @PreUpdate
     protected void onUpdate() {
         updatedAt = LocalDateTime.now();
+        
+        // Atualizar dados do user se existir
+        if (user != null) {
+            name = user.getName();
+            email = user.getEmail();
+            phone = user.getPhone();
+            company = user.getCompany();
+        }
     }
     
     // Helper method para obter nome (de user ou walk-in)

@@ -1,7 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 
-const API_URL = 'http://177.44.248.75:8083/api';
+const PARTICIPANTS_API = 'http://177.44.248.75:8083/api';
+const USERS_API = 'http://177.44.248.75:8081/api';
+const EVENTS_API = 'http://177.44.248.75:8082/api';
 
 function MyEventsPage() {
   const [users, setUsers] = useState([]);
@@ -19,7 +21,7 @@ function MyEventsPage() {
 
   const fetchUsers = async () => {
     try {
-      const response = await axios.get(`${API_URL}/users`);
+      const response = await axios.get(`${USERS_API}/users`);
       setUsers(response.data);
     } catch (error) {
       console.error('Erro ao buscar usuários:', error);
@@ -30,7 +32,7 @@ function MyEventsPage() {
   const fetchAvailableEvents = async () => {
     try {
       setLoading(true);
-      const response = await axios.get(`${API_URL}/events/active`);
+      const response = await axios.get(`${EVENTS_API}/events/active`);
       setAvailableEvents(response.data);
       setShowAvailableEvents(true);
     } catch (error) {
@@ -50,8 +52,8 @@ function MyEventsPage() {
     try {
       setLoading(true);
       const [eventsRes, statsRes] = await Promise.all([
-        axios.get(`${API_URL}/participants/user/${selectedUserId}`),
-        axios.get(`${API_URL}/participants/user/${selectedUserId}/stats`)
+        axios.get(`${PARTICIPANTS_API}/participants/user/${selectedUserId}`),
+        axios.get(`${PARTICIPANTS_API}/participants/user/${selectedUserId}/stats`)
       ]);
       
       setMyEvents(eventsRes.data);
@@ -84,7 +86,7 @@ function MyEventsPage() {
 
     try {
       setLoading(true);
-      await axios.post(`${API_URL}/participants/user/${selectedUserId}/event/${eventId}/register`);
+      await axios.post(`${PARTICIPANTS_API}/participants/user/${selectedUserId}/event/${eventId}/register`);
       showMessage('Inscrição realizada com sucesso!', 'success');
       
       // Atualizar listas
