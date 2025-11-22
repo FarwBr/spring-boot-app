@@ -16,6 +16,10 @@ function EventsPage() {
         active: true
     });
     const [editingId, setEditingId] = useState(null);
+    
+    // Verificar se usuário é ADMIN
+    const user = JSON.parse(localStorage.getItem('user') || '{}');
+    const isAdmin = user?.role === 'ADMIN';
 
     useEffect(() => {
         loadEvents();
@@ -142,26 +146,34 @@ function EventsPage() {
             
             {error && <div className="alert alert-error">{error}</div>}
             
-            <div style={{marginBottom: '20px'}}>
-                <button 
-                    className="btn btn-primary" 
-                    onClick={() => {
-                        setShowForm(!showForm);
-                        setEditingId(null);
-                        setFormData({
-                            name: '',
-                            description: '',
-                            location: '',
-                            startTime: '',
-                            endTime: '',
-                            maxCapacity: 100,
-                            active: true
-                        });
-                    }}
-                >
-                    {showForm ? '❌ Cancelar' : '➕ Novo Evento'}
-                </button>
-            </div>
+            {isAdmin && (
+                <div style={{marginBottom: '20px'}}>
+                    <button 
+                        className="btn btn-primary" 
+                        onClick={() => {
+                            setShowForm(!showForm);
+                            setEditingId(null);
+                            setFormData({
+                                name: '',
+                                description: '',
+                                location: '',
+                                startTime: '',
+                                endTime: '',
+                                maxCapacity: 100,
+                                active: true
+                            });
+                        }}
+                    >
+                        {showForm ? '❌ Cancelar' : '➕ Novo Evento'}
+                    </button>
+                </div>
+            )}
+            
+            {!isAdmin && (
+                <div className="alert" style={{backgroundColor: '#e3f2fd', color: '#1976d2', marginBottom: '20px'}}>
+                    ℹ️ Você pode se inscrever nos eventos disponíveis através do menu "🎫 Meus Eventos"
+                </div>
+            )}
 
             {showForm && (
                 <div className="card" style={{marginBottom: '20px'}}>
@@ -294,46 +306,54 @@ function EventsPage() {
                                             <span className={`badge ${event.active ? 'badge-success' : 'badge-danger'}`}>
                                                 {event.active ? '✅ Ativo' : '❌ Inativo'}
                                             </span>
-                                        </td>
-                                        <td>
-                                            <button 
-                                                onClick={() => handleEdit(event)} 
-                                                className="btn btn-primary btn-sm"
-                                                style={{marginRight: '5px'}}
-                                            >
-                                                ✏️ Editar
-                                            </button>
-                                            <button 
-                                                onClick={() => handleToggleStatus(event.id)} 
-                                                className={`btn ${event.active ? 'btn-warning' : 'badge-success'} btn-sm`}
-                                                style={{marginRight: '5px'}}
-                                            >
-                                                {event.active ? '⏸️ Desativar' : '▶️ Ativar'}
-                                            </button>
-                                            {event.active && !event.finished && (
-                                                <button 
-                                                    onClick={() => handleFinishEvent(event.id)} 
-                                                    className="btn btn-success btn-sm"
-                                                    style={{marginRight: '5px'}}
-                                                    title="Finalizar evento e gerar certificados"
-                                                >
-                                                    🎓 Finalizar
-                                                </button>
-                                            )}
                                             {event.finished && (
                                                 <span 
                                                     className="badge badge-info"
-                                                    style={{marginRight: '5px', padding: '4px 8px'}}
+                                                    style={{marginLeft: '5px', padding: '4px 8px'}}
                                                 >
                                                     ✅ Finalizado
                                                 </span>
                                             )}
-                                            <button 
-                                                onClick={() => handleDelete(event.id)} 
-                                                className="btn btn-danger btn-sm"
-                                            >
-                                                🗑️ Deletar
-                                            </button>
+                                        </td>
+                                        <td>
+                                            {isAdmin ? (
+                                                <>
+                                                    <button 
+                                                        onClick={() => handleEdit(event)} 
+                                                        className="btn btn-primary btn-sm"
+                                                        style={{marginRight: '5px'}}
+                                                    >
+                                                        ✏️ Editar
+                                                    </button>
+                                                    <button 
+                                                        onClick={() => handleToggleStatus(event.id)} 
+                                                        className={`btn ${event.active ? 'btn-warning' : 'badge-success'} btn-sm`}
+                                                        style={{marginRight: '5px'}}
+                                                    >
+                                                        {event.active ? '⏸️ Desativar' : '▶️ Ativar'}
+                                                    </button>
+                                                    {event.active && !event.finished && (
+                                                        <button 
+                                                            onClick={() => handleFinishEvent(event.id)} 
+                                                            className="btn btn-success btn-sm"
+                                                            style={{marginRight: '5px'}}
+                                                            title="Finalizar evento e gerar certificados"
+                                                        >
+                                                            🎓 Finalizar
+                                                        </button>
+                                                    )}
+                                                    <button 
+                                                        onClick={() => handleDelete(event.id)} 
+                                                        className="btn btn-danger btn-sm"
+                                                    >
+                                                        🗑️ Deletar
+                                                    </button>
+                                                </>
+                                            ) : (
+                                                <span style={{color: '#666', fontSize: '14px'}}>
+                                                    📋 Visualização
+                                                </span>
+                                            )}
                                         </td>
                                     </tr>
                                 ))}
