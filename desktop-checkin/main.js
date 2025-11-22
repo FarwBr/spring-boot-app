@@ -388,8 +388,8 @@ async function forceSyncFromServer() {
       
       serverEvents.forEach(e => {
         db.run(
-          'INSERT INTO events (id, name, description, location, startTime, endTime, active, finished, synced) VALUES (?, ?, ?, ?, ?, ?, ?, ?, 1)',
-          [e.id, e.name, e.description || '', e.location || '', e.startTime, e.endTime, e.active ? 1 : 0, e.finished ? 1 : 0]
+          'INSERT INTO events (id, name, description, location, startTime, endTime, active, synced) VALUES (?, ?, ?, ?, ?, ?, ?, 1)',
+          [e.id, e.name, e.description || '', e.location || '', e.startTime, e.endTime, e.active ? 1 : 0]
         );
         eventsCount++;
       });
