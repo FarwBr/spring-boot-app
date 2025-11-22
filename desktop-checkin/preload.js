@@ -18,6 +18,7 @@ contextBridge.exposeInMainWorld('electronAPI', {
   // Connection
   checkConnection: () => ipcRenderer.invoke('check-connection'),
   forceSync: () => ipcRenderer.invoke('force-sync'),
+  forceSyncFromServer: () => ipcRenderer.invoke('force-sync-from-server'),
   
   // Events
   onSyncCompleted: (callback) => {

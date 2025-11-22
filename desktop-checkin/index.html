@@ -87,6 +87,8 @@
     .btn-success:hover { background: #218838; }
     .btn-warning { background: #ffc107; color: #000; }
     .btn-warning:hover { background: #e0a800; }
+    .btn-danger { background: #dc3545; color: white; }
+    .btn-danger:hover { background: #c82333; }
     .btn-sm { padding: 5px 10px; font-size: 12px; }
     
     .content {
@@ -338,6 +340,9 @@
           <button class="btn btn-primary" style="width: 100%;" onclick="syncEventsData()">
             🔄 Atualizar Eventos
           </button>
+          <button class="btn btn-danger" style="width: 100%; margin-top: 10px;" onclick="forceSyncFromServer()" title="Limpa base local e baixa tudo do servidor">
+            ⚡ Sincronização Forçada
+          </button>
         </div>
 
         <!-- Adicionar Walk-in -->
@@ -486,6 +491,40 @@
         await loadEvents();
       } else {
         showNotification('Erro ao sincronizar eventos', true);
+      }
+    }
+
+    // Sincronização forçada - limpa tudo e baixa do servidor
+    async function forceSyncFromServer() {
+      if (!isOnline) {
+        showNotification('Você está offline! Conecte-se para sincronizar.', true);
+        return;
+      }
+      
+      if (!confirm('⚠️ ATENÇÃO!\n\nEsta ação irá:\n• Limpar TODOS os dados locais\n• Baixar tudo do servidor novamente\n• PERDER walk-ins não sincronizados\n\nDeseja continuar?')) {
+        return;
+      }
+      
+      try {
+        showNotification('🔄 Limpando base local...', false);
+        
+        const result = await window.electronAPI.forceSyncFromServer();
+        
+        if (result.success) {
+          showNotification(`✅ Sincronização completa! ${result.eventsCount} eventos e ${result.participantsCount} participantes baixados.`);
+          
+          // Recarregar interface
+          currentEventId = null;
+          await loadEvents();
+          document.getElementById('eventInfo').style.display = 'none';
+          document.getElementById('walkInCard').style.display = 'none';
+          document.getElementById('statsSection').style.display = 'none';
+          document.getElementById('participantList').innerHTML = '<div class="empty-state"><p>Selecione um evento</p></div>';
+        } else {
+          showNotification('❌ Erro na sincronização: ' + (result.error || 'Erro desconhecido'), true);
+        }
+      } catch (error) {
+        showNotification('❌ Erro: ' + error.message, true);
       }
     }
 

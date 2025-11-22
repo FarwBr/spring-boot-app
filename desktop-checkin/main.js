@@ -259,6 +259,10 @@ ipcMain.handle('force-sync', async () => {
   return await trySync();
 });
 
+ipcMain.handle('force-sync-from-server', async () => {
+  return await forceSyncFromServer();
+});
+
 async function checkConnection() {
   try {
     await axios.get(`${BACKEND_URL}/events`, { timeout: 3000 });
@@ -359,6 +363,73 @@ async function trySync() {
 
 async function checkConnectionAndSync() {
   await trySync();
+}
+
+// Sincronização forçada - limpa tudo e baixa do servidor
+async function forceSyncFromServer() {
+  try {
+    const connection = await checkConnection();
+    if (!connection.online) {
+      return { success: false, error: 'Offline' };
+    }
+    
+    // 1. LIMPAR TABELAS LOCAIS (preservar estrutura)
+    db.run('DELETE FROM participants');
+    db.run('DELETE FROM events');
+    db.run('DELETE FROM checkins');
+    
+    let eventsCount = 0;
+    let participantsCount = 0;
+    
+    // 2. BAIXAR TODOS OS EVENTOS
+    try {
+      const eventsResponse = await axios.get(`${BACKEND_URL}/events`, { timeout: 10000 });
+      const serverEvents = eventsResponse.data;
+      
+      serverEvents.forEach(e => {
+        db.run(
+          'INSERT INTO events (id, name, description, location, startTime, endTime, active, finished, synced) VALUES (?, ?, ?, ?, ?, ?, ?, ?, 1)',
+          [e.id, e.name, e.description || '', e.location || '', e.startTime, e.endTime, e.active ? 1 : 0, e.finished ? 1 : 0]
+        );
+        eventsCount++;
+      });
+    } catch (err) {
+      return { success: false, error: 'Erro ao baixar eventos: ' + err.message };
+    }
+    
+    // 3. BAIXAR PARTICIPANTES DE CADA EVENTO
+    const eventsResult = db.exec('SELECT id FROM events');
+    const events = eventsResult.length > 0 ? eventsResult[0].values : [];
+    
+    for (const eventRow of events) {
+      const eventId = eventRow[0];
+      try {
+        const response = await axios.get(`${BACKEND_URL}/participants/event/${eventId}`, { timeout: 5000 });
+        const serverParticipants = response.data;
+        
+        serverParticipants.forEach(p => {
+          db.run(
+            'INSERT INTO participants (id, eventId, name, email, phone, company, checkedIn, checkInTime, isWalkIn, synced) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, 1)',
+            [p.id, eventId, p.name || '', p.email || '', p.phone || '', p.company || '', p.checkedIn ? 1 : 0, p.checkInTime, p.isWalkIn ? 1 : 0]
+          );
+          participantsCount++;
+        });
+      } catch (err) {
+        console.error(`Erro ao baixar participantes do evento ${eventId}:`, err);
+      }
+    }
+    
+    saveDatabase();
+    
+    return { 
+      success: true, 
+      eventsCount, 
+      participantsCount,
+      message: `${eventsCount} eventos e ${participantsCount} participantes sincronizados` 
+    };
+  } catch (error) {
+    return { success: false, error: error.message };
+  }
 }
 
 app.whenReady().then(async () => {
