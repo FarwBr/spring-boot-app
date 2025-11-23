@@ -1,5 +1,6 @@
 package com.example.controller;
 
+import com.example.dto.ParticipantWithEventDTO;
 import com.example.model.Participant;
 import com.example.service.ParticipantService;
 import jakarta.validation.Valid;
@@ -11,6 +12,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/api/participants")
@@ -30,8 +32,12 @@ public class ParticipantController {
     }
     
     @GetMapping("/user/{userId}")
-    public ResponseEntity<List<Participant>> getParticipantsByUser(@PathVariable Long userId) {
-        return ResponseEntity.ok(participantService.getParticipantsByUser(userId));
+    public ResponseEntity<List<ParticipantWithEventDTO>> getParticipantsByUser(@PathVariable Long userId) {
+        List<Participant> participants = participantService.getParticipantsByUser(userId);
+        List<ParticipantWithEventDTO> dtos = participants.stream()
+                .map(ParticipantWithEventDTO::fromParticipant)
+                .collect(Collectors.toList());
+        return ResponseEntity.ok(dtos);
     }
     
     @GetMapping("/event/{eventId}/pending")
