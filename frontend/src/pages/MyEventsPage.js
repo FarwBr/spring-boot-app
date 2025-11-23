@@ -2,62 +2,90 @@ import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import './MyEventsPage.css';
 
+const USERS_API = 'http://177.44.248.75:8081/api';
 const PARTICIPANTS_API = 'http://177.44.248.75:8083/api';
 const CHECKIN_API = 'http://177.44.248.75:8084/api';
 
 function MyEventsPage() {
   const [currentUser, setCurrentUser] = useState(null);
+  const [isAdmin, setIsAdmin] = useState(false);
+  const [users, setUsers] = useState([]);
+  const [selectedUserId, setSelectedUserId] = useState(null);
   const [myEvents, setMyEvents] = useState([]);
-  const [stats, setStats] = useState({ totalEvents: 0, checkedIn: 0, pending: 0 });
   const [loading, setLoading] = useState(true);
-  const [message, setMessage] = useState('');
-
-  const showMessage = (msg, type) => {
-    setMessage({ text: msg, type });
-    setTimeout(() => setMessage(''), 4000);
-  };
+  const [message, setMessage] = useState(null);
 
   useEffect(() => {
-    const fetchMyEvents = async (userId) => {
-      try {
-        const response = await axios.get(`${PARTICIPANTS_API}/participants/user/${userId}`);
-        const events = response.data;
-        
-        setMyEvents(events);
-        
-        // Calcular estatísticas
-        const checkedInCount = events.filter(p => p.checkedIn).length;
-        setStats({
-          totalEvents: events.length,
-          checkedIn: checkedInCount,
-          pending: events.length - checkedInCount
-        });
-      } catch (error) {
-        console.error('Erro ao buscar meus eventos:', error);
-        showMessage('Erro ao carregar seus eventos', 'error');
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    // Carregar usuário logado
-    const userId = localStorage.getItem('userId');
-    const userName = localStorage.getItem('userName');
-    const userEmail = localStorage.getItem('userEmail');
-
-    if (!userId) {
-      showMessage('Você precisa fazer login primeiro', 'error');
-      setLoading(false);
-      return;
-    }
-
-    setCurrentUser({ id: userId, name: userName, email: userEmail });
-    fetchMyEvents(userId);
+    initializePage();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
+
+  const initializePage = async () => {
+    try {
+      const userId = localStorage.getItem('userId');
+      const userName = localStorage.getItem('userName');
+      const userEmail = localStorage.getItem('userEmail');
+      const userRole = localStorage.getItem('userRole');
+
+      if (!userId) {
+        showMessage('Você precisa fazer login primeiro', 'error');
+        setLoading(false);
+        return;
+      }
+
+      const user = { id: userId, name: userName, email: userEmail };
+      setCurrentUser(user);
+      setIsAdmin(userRole === 'ADMIN');
+
+      if (userRole === 'ADMIN') {
+        await loadUsers();
+      } else {
+        setSelectedUserId(userId);
+        await loadUserEvents(userId);
+      }
+
+      setLoading(false);
+    } catch (error) {
+      console.error('Erro ao inicializar:', error);
+      showMessage('Erro ao carregar dados', 'error');
+      setLoading(false);
+    }
+  };
+
+  const loadUsers = async () => {
+    try {
+      const response = await axios.get(`${USERS_API}/users`);
+      setUsers(response.data);
+    } catch (error) {
+      console.error('Erro ao carregar usuários:', error);
+      showMessage('Erro ao carregar lista de usuários', 'error');
+    }
+  };
+
+  const loadUserEvents = async (userId) => {
+    try {
+      setLoading(true);
+      const response = await axios.get(`${PARTICIPANTS_API}/participants/user/${userId}`);
+      setMyEvents(response.data);
+    } catch (error) {
+      console.error('Erro ao carregar eventos:', error);
+      showMessage('Erro ao carregar eventos do usuário', 'error');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleUserSelect = (userId) => {
+    setSelectedUserId(userId);
+    if (userId) {
+      loadUserEvents(userId);
+    } else {
+      setMyEvents([]);
+    }
+  };
 
   const downloadCertificate = async (participantId, eventId, eventName) => {
     try {
-      setLoading(true);
       showMessage('Gerando certificado...', 'info');
       
       const response = await axios.get(
@@ -65,7 +93,6 @@ function MyEventsPage() {
         { responseType: 'blob' }
       );
       
-      // Criar URL do blob e baixar
       const url = window.URL.createObjectURL(new Blob([response.data]));
       const link = document.createElement('a');
       link.href = url;
@@ -79,13 +106,31 @@ function MyEventsPage() {
     } catch (error) {
       console.error('Erro ao baixar certificado:', error);
       if (error.response?.status === 404) {
-        showMessage('Certificado não disponível. Você precisa ter feito check-in.', 'error');
+        showMessage('Certificado não disponível. Você precisa ter feito check-in e o evento deve estar finalizado.', 'error');
       } else {
         showMessage('Erro ao gerar certificado', 'error');
       }
-    } finally {
-      setLoading(false);
     }
+  };
+
+  const cancelParticipation = async (participantId, eventName) => {
+    if (!window.confirm(`Deseja realmente cancelar sua participação no evento "${eventName}"?`)) {
+      return;
+    }
+
+    try {
+      await axios.delete(`${PARTICIPANTS_API}/participants/${participantId}`);
+      showMessage('Participação cancelada com sucesso!', 'success');
+      loadUserEvents(selectedUserId);
+    } catch (error) {
+      console.error('Erro ao cancelar participação:', error);
+      showMessage('Erro ao cancelar participação', 'error');
+    }
+  };
+
+  const showMessage = (text, type) => {
+    setMessage({ text, type });
+    setTimeout(() => setMessage(null), 4000);
   };
 
   const formatDateTime = (dateTimeString) => {
@@ -104,118 +149,383 @@ function MyEventsPage() {
     return new Date(endTime) < new Date();
   };
 
+  const isEventStarted = (startTime) => {
+    return new Date(startTime) < new Date();
+  };
+
   const canDownloadCertificate = (participation) => {
     return participation.checkedIn && isEventFinished(participation.event?.endTime);
   };
 
+  const canCancelParticipation = (participation) => {
+    return !participation.checkedIn && !isEventStarted(participation.event?.startTime);
+  };
+
   if (loading) {
     return (
-      <div className="page-container">
-        <div className="loading-message">
-          <h3>⏳ Carregando...</h3>
-        </div>
+      <div style={{ padding: '40px', textAlign: 'center' }}>
+        <h3>⏳ Carregando...</h3>
       </div>
     );
   }
 
+  const activeEvents = myEvents.filter(p => !isEventFinished(p.event?.endTime));
+  const finishedEvents = myEvents.filter(p => isEventFinished(p.event?.endTime));
+
   return (
-    <div className="page-container">
-      <div className="header-section">
-        <h2>🎫 Meus Eventos</h2>
-        <div className="user-info">
-          <p><strong>👤 {currentUser.name}</strong></p>
-          <p className="user-email">{currentUser.email}</p>
-        </div>
+    <div style={{ padding: '20px', maxWidth: '1400px', margin: '0 auto' }}>
+      <div style={{ 
+        background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+        color: 'white',
+        padding: '30px',
+        borderRadius: '12px',
+        marginBottom: '20px',
+        boxShadow: '0 4px 6px rgba(0,0,0,0.1)'
+      }}>
+        <h2 style={{ margin: '0 0 10px 0', fontSize: '32px' }}>🎫 Meus Eventos</h2>
+        {isAdmin ? (
+          <p style={{ margin: 0, opacity: 0.9 }}>👨‍💼 Modo Admin - Selecione um usuário para visualizar seus eventos</p>
+        ) : (
+          <div>
+            <p style={{ margin: '5px 0', fontSize: '18px' }}><strong>👤 {currentUser?.name}</strong></p>
+            <p style={{ margin: '5px 0', opacity: 0.9, fontSize: '14px' }}>{currentUser?.email}</p>
+          </div>
+        )}
       </div>
 
       {message && (
-        <div className={`message ${message.type}`}>
+        <div style={{
+          padding: '15px 20px',
+          marginBottom: '20px',
+          borderRadius: '8px',
+          background: message.type === 'success' ? '#d4edda' : message.type === 'error' ? '#f8d7da' : '#d1ecf1',
+          color: message.type === 'success' ? '#155724' : message.type === 'error' ? '#721c24' : '#0c5460',
+          border: `1px solid ${message.type === 'success' ? '#c3e6cb' : message.type === 'error' ? '#f5c6cb' : '#bee5eb'}`
+        }}>
           {message.text}
         </div>
       )}
 
-      {/* Estatísticas */}
-      <div className="stats-container">
-        <div className="stat-card">
-          <div className="stat-value">{stats.totalEvents}</div>
-          <div className="stat-label">Eventos Inscritos</div>
+      {isAdmin && (
+        <div style={{
+          background: 'white',
+          padding: '20px',
+          borderRadius: '8px',
+          marginBottom: '20px',
+          boxShadow: '0 2px 4px rgba(0,0,0,0.1)'
+        }}>
+          <label style={{ display: 'block', marginBottom: '10px', fontWeight: 'bold', fontSize: '16px' }}>
+            Selecionar Usuário:
+          </label>
+          <select
+            value={selectedUserId || ''}
+            onChange={(e) => handleUserSelect(e.target.value)}
+            style={{
+              width: '100%',
+              padding: '12px',
+              fontSize: '16px',
+              border: '2px solid #ddd',
+              borderRadius: '8px',
+              cursor: 'pointer'
+            }}
+          >
+            <option value="">Selecione um usuário...</option>
+            {users.map(user => (
+              <option key={user.id} value={user.id}>
+                {user.name} ({user.email}) - {user.role}
+              </option>
+            ))}
+          </select>
         </div>
-        <div className="stat-card">
-          <div className="stat-value">{stats.checkedIn}</div>
-          <div className="stat-label">Check-ins Realizados</div>
-        </div>
-        <div className="stat-card">
-          <div className="stat-value">{stats.pending}</div>
-          <div className="stat-label">Aguardando Check-in</div>
-        </div>
-      </div>
+      )}
 
-      {/* Lista de Eventos */}
-      <div className="events-section">
-        <h3>📅 Meus Eventos ({myEvents.length})</h3>
-        {myEvents.length === 0 ? (
-          <div className="empty-state">
-            <p>😔 Você ainda não está inscrito em nenhum evento.</p>
-            <p className="info-text">Acesse a página "Eventos" para ver eventos disponíveis e se inscrever.</p>
+      {selectedUserId ? (
+        <div>
+          <div style={{
+            display: 'grid',
+            gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))',
+            gap: '20px',
+            marginBottom: '20px'
+          }}>
+            <div style={{
+              background: 'white',
+              padding: '25px',
+              borderRadius: '8px',
+              textAlign: 'center',
+              boxShadow: '0 2px 4px rgba(0,0,0,0.1)',
+              borderLeft: '4px solid #667eea'
+            }}>
+              <div style={{ fontSize: '48px', fontWeight: 'bold', color: '#667eea' }}>{myEvents.length}</div>
+              <div style={{ color: '#666', fontSize: '14px', marginTop: '5px' }}>Total de Eventos</div>
+            </div>
+            <div style={{
+              background: 'white',
+              padding: '25px',
+              borderRadius: '8px',
+              textAlign: 'center',
+              boxShadow: '0 2px 4px rgba(0,0,0,0.1)',
+              borderLeft: '4px solid #28a745'
+            }}>
+              <div style={{ fontSize: '48px', fontWeight: 'bold', color: '#28a745' }}>{activeEvents.length}</div>
+              <div style={{ color: '#666', fontSize: '14px', marginTop: '5px' }}>Eventos Ativos</div>
+            </div>
+            <div style={{
+              background: 'white',
+              padding: '25px',
+              borderRadius: '8px',
+              textAlign: 'center',
+              boxShadow: '0 2px 4px rgba(0,0,0,0.1)',
+              borderLeft: '4px solid #6c757d'
+            }}>
+              <div style={{ fontSize: '48px', fontWeight: 'bold', color: '#6c757d' }}>{finishedEvents.length}</div>
+              <div style={{ color: '#666', fontSize: '14px', marginTop: '5px' }}>Eventos Finalizados</div>
+            </div>
           </div>
-        ) : (
-          <div className="events-grid">
-            {myEvents.map(participation => {
-              const event = participation.event;
-              const finished = isEventFinished(event?.endTime);
-              const canDownload = canDownloadCertificate(participation);
-              
-              return (
-                <div key={participation.id} className="event-card">
-                  <div className="event-header">
-                    <h4>{event?.name || 'N/A'}</h4>
-                    {finished && <span className="badge badge-finished">✓ Encerrado</span>}
-                    {!finished && <span className="badge badge-active">🔴 Ativo</span>}
+
+          {myEvents.length === 0 ? (
+            <div style={{
+              background: 'white',
+              padding: '60px 20px',
+              borderRadius: '8px',
+              textAlign: 'center',
+              boxShadow: '0 2px 4px rgba(0,0,0,0.1)'
+            }}>
+              <p style={{ fontSize: '18px', color: '#999', margin: '10px 0' }}>
+                😔 {isAdmin ? 'Este usuário não está' : 'Você ainda não está'} inscrito em nenhum evento.
+              </p>
+              {!isAdmin && (
+                <p style={{ fontSize: '14px', color: '#999', margin: '10px 0' }}>
+                  Acesse a página "Eventos" para ver eventos disponíveis e se inscrever.
+                </p>
+              )}
+            </div>
+          ) : (
+            <>
+              {activeEvents.length > 0 && (
+                <div style={{ marginBottom: '30px' }}>
+                  <h3 style={{ marginBottom: '15px', color: '#333' }}>🔴 Eventos Ativos ({activeEvents.length})</h3>
+                  <div style={{
+                    display: 'grid',
+                    gridTemplateColumns: 'repeat(auto-fill, minmax(350px, 1fr))',
+                    gap: '20px'
+                  }}>
+                    {activeEvents.map(participation => {
+                      const event = participation.event;
+                      return (
+                        <div key={participation.id} style={{
+                          background: 'white',
+                          borderRadius: '8px',
+                          padding: '20px',
+                          boxShadow: '0 2px 8px rgba(0,0,0,0.1)',
+                          borderLeft: '4px solid #28a745'
+                        }}>
+                          <div style={{ marginBottom: '15px' }}>
+                            <h4 style={{ margin: '0 0 10px 0', color: '#333' }}>{event?.name || 'N/A'}</h4>
+                            <span style={{
+                              display: 'inline-block',
+                              padding: '4px 12px',
+                              borderRadius: '12px',
+                              fontSize: '12px',
+                              fontWeight: 'bold',
+                              background: '#28a745',
+                              color: 'white'
+                            }}>
+                              🔴 Ativo
+                            </span>
+                          </div>
+                          
+                          <p style={{ color: '#666', fontSize: '14px', marginBottom: '15px' }}>
+                            {event?.description || 'Sem descrição'}
+                          </p>
+                          
+                          <div style={{ fontSize: '14px', marginBottom: '15px' }}>
+                            <p style={{ margin: '5px 0' }}><strong>📍 Local:</strong> {event?.location || 'N/A'}</p>
+                            <p style={{ margin: '5px 0' }}><strong>🕐 Início:</strong> {formatDateTime(event?.startTime)}</p>
+                            <p style={{ margin: '5px 0' }}><strong>🕐 Término:</strong> {formatDateTime(event?.endTime)}</p>
+                          </div>
+                          
+                          <div style={{ marginBottom: '15px' }}>
+                            {participation.checkedIn ? (
+                              <div>
+                                <span style={{
+                                  display: 'inline-block',
+                                  padding: '4px 12px',
+                                  borderRadius: '12px',
+                                  fontSize: '12px',
+                                  fontWeight: 'bold',
+                                  background: '#28a745',
+                                  color: 'white'
+                                }}>
+                                  ✅ Check-in Realizado
+                                </span>
+                                <p style={{ fontSize: '12px', color: '#666', marginTop: '5px' }}>
+                                  {formatDateTime(participation.checkInTime)}
+                                </p>
+                              </div>
+                            ) : (
+                              <span style={{
+                                display: 'inline-block',
+                                padding: '4px 12px',
+                                borderRadius: '12px',
+                                fontSize: '12px',
+                                fontWeight: 'bold',
+                                background: '#ffc107',
+                                color: '#000'
+                              }}>
+                                ⏳ Aguardando Check-in
+                              </span>
+                            )}
+                          </div>
+                          
+                          {!isAdmin && canCancelParticipation(participation) && (
+                            <button
+                              onClick={() => cancelParticipation(participation.id, event.name)}
+                              style={{
+                                width: '100%',
+                                padding: '10px',
+                                background: '#dc3545',
+                                color: 'white',
+                                border: 'none',
+                                borderRadius: '6px',
+                                cursor: 'pointer',
+                                fontWeight: 'bold',
+                                fontSize: '14px'
+                              }}
+                            >
+                              ❌ Cancelar Participação
+                            </button>
+                          )}
+                        </div>
+                      );
+                    })}
                   </div>
-                  
-                  <p className="event-description">{event?.description || 'Sem descrição'}</p>
-                  
-                  <div className="event-details">
-                    <p><strong>📍 Local:</strong> {event?.location || 'N/A'}</p>
-                    <p><strong>🕐 Início:</strong> {formatDateTime(event?.startTime)}</p>
-                    <p><strong>🕐 Término:</strong> {formatDateTime(event?.endTime)}</p>
-                  </div>
-                  
-                  <div className="event-status">
-                    {participation.checkedIn ? (
-                      <div>
-                        <span className="badge badge-success">✅ Check-in Realizado</span>
-                        <p className="checkin-time">
-                          <small>{formatDateTime(participation.checkInTime)}</small>
-                        </p>
-                      </div>
-                    ) : (
-                      <span className="badge badge-warning">⏳ Aguardando Check-in</span>
-                    )}
-                  </div>
-                  
-                  {/* Botão de Certificado */}
-                  {canDownload && (
-                    <button
-                      onClick={() => downloadCertificate(participation.id, event.id, event.name)}
-                      disabled={loading}
-                      className="btn btn-certificate"
-                    >
-                      📄 Baixar Certificado
-                    </button>
-                  )}
-                  
-                  {finished && !participation.checkedIn && (
-                    <div className="info-message">
-                      <small>ℹ️ Evento encerrado sem check-in. Certificado não disponível.</small>
-                    </div>
-                  )}
                 </div>
-              );
-            })}
-          </div>
-        )}
-      </div>
+              )}
+
+              {finishedEvents.length > 0 && (
+                <div>
+                  <h3 style={{ marginBottom: '15px', color: '#333' }}>✓ Eventos Finalizados ({finishedEvents.length})</h3>
+                  <div style={{
+                    display: 'grid',
+                    gridTemplateColumns: 'repeat(auto-fill, minmax(350px, 1fr))',
+                    gap: '20px'
+                  }}>
+                    {finishedEvents.map(participation => {
+                      const event = participation.event;
+                      const canDownload = canDownloadCertificate(participation);
+                      
+                      return (
+                        <div key={participation.id} style={{
+                          background: 'white',
+                          borderRadius: '8px',
+                          padding: '20px',
+                          boxShadow: '0 2px 8px rgba(0,0,0,0.1)',
+                          borderLeft: '4px solid #6c757d',
+                          opacity: 0.9
+                        }}>
+                          <div style={{ marginBottom: '15px' }}>
+                            <h4 style={{ margin: '0 0 10px 0', color: '#333' }}>{event?.name || 'N/A'}</h4>
+                            <span style={{
+                              display: 'inline-block',
+                              padding: '4px 12px',
+                              borderRadius: '12px',
+                              fontSize: '12px',
+                              fontWeight: 'bold',
+                              background: '#6c757d',
+                              color: 'white'
+                            }}>
+                              ✓ Encerrado
+                            </span>
+                          </div>
+                          
+                          <p style={{ color: '#666', fontSize: '14px', marginBottom: '15px' }}>
+                            {event?.description || 'Sem descrição'}
+                          </p>
+                          
+                          <div style={{ fontSize: '14px', marginBottom: '15px' }}>
+                            <p style={{ margin: '5px 0' }}><strong>📍 Local:</strong> {event?.location || 'N/A'}</p>
+                            <p style={{ margin: '5px 0' }}><strong>🕐 Início:</strong> {formatDateTime(event?.startTime)}</p>
+                            <p style={{ margin: '5px 0' }}><strong>🕐 Término:</strong> {formatDateTime(event?.endTime)}</p>
+                          </div>
+                          
+                          <div style={{ marginBottom: '15px' }}>
+                            {participation.checkedIn ? (
+                              <div>
+                                <span style={{
+                                  display: 'inline-block',
+                                  padding: '4px 12px',
+                                  borderRadius: '12px',
+                                  fontSize: '12px',
+                                  fontWeight: 'bold',
+                                  background: '#28a745',
+                                  color: 'white'
+                                }}>
+                                  ✅ Check-in Realizado
+                                </span>
+                                <p style={{ fontSize: '12px', color: '#666', marginTop: '5px' }}>
+                                  {formatDateTime(participation.checkInTime)}
+                                </p>
+                              </div>
+                            ) : (
+                              <div>
+                                <span style={{
+                                  display: 'inline-block',
+                                  padding: '4px 12px',
+                                  borderRadius: '12px',
+                                  fontSize: '12px',
+                                  fontWeight: 'bold',
+                                  background: '#dc3545',
+                                  color: 'white'
+                                }}>
+                                  ❌ Sem Check-in
+                                </span>
+                                <p style={{ fontSize: '12px', color: '#999', marginTop: '5px' }}>
+                                  Certificado não disponível
+                                </p>
+                              </div>
+                            )}
+                          </div>
+                          
+                          {canDownload && (
+                            <button
+                              onClick={() => downloadCertificate(participation.id, event.id, event.name)}
+                              style={{
+                                width: '100%',
+                                padding: '10px',
+                                background: '#007bff',
+                                color: 'white',
+                                border: 'none',
+                                borderRadius: '6px',
+                                cursor: 'pointer',
+                                fontWeight: 'bold',
+                                fontSize: '14px'
+                              }}
+                            >
+                              📄 Baixar Certificado
+                            </button>
+                          )}
+                        </div>
+                      );
+                    })}
+                  </div>
+                </div>
+              )}
+            </>
+          )}
+        </div>
+      ) : isAdmin && (
+        <div style={{
+          background: 'white',
+          padding: '60px 20px',
+          borderRadius: '8px',
+          textAlign: 'center',
+          boxShadow: '0 2px 4px rgba(0,0,0,0.1)'
+        }}>
+          <p style={{ fontSize: '18px', color: '#999' }}>
+            👆 Selecione um usuário acima para visualizar seus eventos
+          </p>
+        </div>
+      )}
     </div>
   );
 }
