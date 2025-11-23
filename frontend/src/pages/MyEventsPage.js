@@ -41,13 +41,6 @@ function MyEventsPage() {
       }
     };
 
-    // Verificar se é admin - se for, mostrar mensagem
-    const userRole = localStorage.getItem('userRole');
-    if (userRole === 'ADMIN') {
-      showMessage('Esta página é apenas para usuários finais.', 'error');
-      return;
-    }
-
     // Carregar usuário logado
     const userId = localStorage.getItem('userId');
     const userName = localStorage.getItem('userName');
