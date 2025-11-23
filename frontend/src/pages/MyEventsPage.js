@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import './MyEventsPage.css';
 
@@ -12,35 +12,35 @@ function MyEventsPage() {
   const [loading, setLoading] = useState(false);
   const [message, setMessage] = useState('');
 
-  const fetchMyEvents = useCallback(async (userId) => {
-    try {
-      setLoading(true);
-      const response = await axios.get(`${PARTICIPANTS_API}/participants/user/${userId}`);
-      const events = response.data;
-      
-      setMyEvents(events);
-      
-      // Calcular estatísticas
-      const checkedInCount = events.filter(p => p.checkedIn).length;
-      setStats({
-        totalEvents: events.length,
-        checkedIn: checkedInCount,
-        pending: events.length - checkedInCount
-      });
-    } catch (error) {
-      console.error('Erro ao buscar meus eventos:', error);
-      showMessage('Erro ao carregar seus eventos', 'error');
-    } finally {
-      setLoading(false);
-    }
-  }, []);
-
-  const showMessage = useCallback((msg, type) => {
+  const showMessage = (msg, type) => {
     setMessage({ text: msg, type });
     setTimeout(() => setMessage(''), 4000);
-  }, []);
+  };
 
   useEffect(() => {
+    const fetchMyEvents = async (userId) => {
+      try {
+        setLoading(true);
+        const response = await axios.get(`${PARTICIPANTS_API}/participants/user/${userId}`);
+        const events = response.data;
+        
+        setMyEvents(events);
+        
+        // Calcular estatísticas
+        const checkedInCount = events.filter(p => p.checkedIn).length;
+        setStats({
+          totalEvents: events.length,
+          checkedIn: checkedInCount,
+          pending: events.length - checkedInCount
+        });
+      } catch (error) {
+        console.error('Erro ao buscar meus eventos:', error);
+        showMessage('Erro ao carregar seus eventos', 'error');
+      } finally {
+        setLoading(false);
+      }
+    };
+
     // Verificar se é admin - se for, mostrar mensagem
     const userRole = localStorage.getItem('userRole');
     if (userRole === 'ADMIN') {
@@ -60,7 +60,7 @@ function MyEventsPage() {
 
     setCurrentUser({ id: userId, name: userName, email: userEmail });
     fetchMyEvents(userId);
-  }, [fetchMyEvents, showMessage]);
+  }, []);
 
   const downloadCertificate = async (participantId, eventId, eventName) => {
     try {
@@ -155,17 +155,6 @@ function MyEventsPage() {
           <div className="stat-value">{stats.pending}</div>
           <div className="stat-label">Aguardando Check-in</div>
         </div>
-      </div>
-
-      {/* Botão Atualizar */}
-      <div className="action-buttons">
-        <button
-          onClick={() => fetchMyEvents(currentUser.id)}
-          disabled={loading}
-          className="btn btn-primary"
-        >
-          {loading ? '⏳ Carregando...' : '🔄 Atualizar'}
-        </button>
       </div>
 
       {/* Lista de Eventos */}
