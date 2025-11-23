@@ -72,6 +72,7 @@ function MyEventsPage() {
     try {
       setLoading(true);
       const response = await axios.get(`${PARTICIPANTS_API}/participants/user/${userId}`);
+      console.log('Eventos carregados:', response.data);
       setMyEvents(response.data);
     } catch (error) {
       console.error('Erro ao carregar eventos:', error);
@@ -152,7 +153,11 @@ function MyEventsPage() {
   };
 
   const isEventFinished = (endTime) => {
-    return new Date(endTime) < new Date();
+    if (!endTime) return false;
+    const eventEnd = new Date(endTime);
+    const now = new Date();
+    console.log('Verificando evento:', { endTime, eventEnd, now, finished: eventEnd < now });
+    return eventEnd < now;
   };
 
   const isEventStarted = (startTime) => {
@@ -212,6 +217,17 @@ function MyEventsPage() {
 
   const activeEvents = myEvents.filter(p => !isEventFinished(p.event?.endTime));
   const finishedEvents = myEvents.filter(p => isEventFinished(p.event?.endTime));
+
+  console.log('Filtros de eventos:', { 
+    total: myEvents.length, 
+    active: activeEvents.length, 
+    finished: finishedEvents.length,
+    myEvents: myEvents.map(p => ({
+      name: p.event?.name,
+      endTime: p.event?.endTime,
+      isFinished: isEventFinished(p.event?.endTime)
+    }))
+  });
 
   return (
     <div style={{ padding: '20px', maxWidth: '1400px', margin: '0 auto' }}>
