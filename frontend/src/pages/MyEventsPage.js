@@ -1,6 +1,5 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import axios from 'axios';
-import { useNavigate } from 'react-router-dom';
 import './MyEventsPage.css';
 
 const PARTICIPANTS_API = 'http://177.44.248.75:8083/api';
@@ -12,7 +11,6 @@ function MyEventsPage() {
   const [stats, setStats] = useState({ totalEvents: 0, checkedIn: 0, pending: 0 });
   const [loading, setLoading] = useState(false);
   const [message, setMessage] = useState('');
-  const navigate = useNavigate();
 
   const fetchMyEvents = useCallback(async (userId) => {
     try {
@@ -43,11 +41,10 @@ function MyEventsPage() {
   }, []);
 
   useEffect(() => {
-    // Verificar se é admin - se for, redirecionar
+    // Verificar se é admin - se for, mostrar mensagem
     const userRole = localStorage.getItem('userRole');
     if (userRole === 'ADMIN') {
-      showMessage('Esta página é apenas para usuários finais. Redirecionando...', 'error');
-      setTimeout(() => navigate('/events'), 2000);
+      showMessage('Esta página é apenas para usuários finais.', 'error');
       return;
     }
 
@@ -58,13 +55,12 @@ function MyEventsPage() {
 
     if (!userId) {
       showMessage('Você precisa fazer login primeiro', 'error');
-      setTimeout(() => navigate('/'), 2000);
       return;
     }
 
     setCurrentUser({ id: userId, name: userName, email: userEmail });
     fetchMyEvents(userId);
-  }, [navigate, fetchMyEvents, showMessage]);
+  }, [fetchMyEvents, showMessage]);
 
   const downloadCertificate = async (participantId, eventId, eventName) => {
     try {
@@ -178,9 +174,7 @@ function MyEventsPage() {
         {myEvents.length === 0 ? (
           <div className="empty-state">
             <p>😔 Você ainda não está inscrito em nenhum evento.</p>
-            <button onClick={() => navigate('/events')} className="btn btn-secondary">
-              🔍 Buscar Eventos Disponíveis
-            </button>
+            <p className="info-text">Acesse a página "Eventos" para ver eventos disponíveis e se inscrever.</p>
           </div>
         ) : (
           <div className="events-grid">
