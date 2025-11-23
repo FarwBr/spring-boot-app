@@ -241,7 +241,7 @@ function MyEventsPage() {
         )}
       </div>
 
-      <style jsx>{`
+      <style>{`
         .page-container {
           padding: 20px;
           max-width: 1400px;
