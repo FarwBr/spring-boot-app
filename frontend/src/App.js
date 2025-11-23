@@ -5,6 +5,7 @@ import NotificationsPage from './pages/NotificationsPage';
 import EventsPage from './pages/EventsPage';
 import ParticipantsPage from './pages/ParticipantsPage';
 import MyEventsPage from './pages/MyEventsPage';
+import LogsPage from './pages/LogsPage';
 import CertificateValidation from './pages/CertificateValidation';
 import './App.css';
 
@@ -71,6 +72,8 @@ function App() {
         return <ParticipantsPage />;
       case 'myevents':
         return <MyEventsPage />;
+      case 'logs':
+        return <LogsPage />;
       default:
         return (
           <div className="welcome-page">
@@ -143,6 +146,15 @@ function App() {
           >
             🔔 Notificações
           </button>
+          
+          {isAdmin && (
+            <button 
+              onClick={() => setCurrentPage('logs')} 
+              className={currentPage === 'logs' ? 'active' : ''}
+            >
+              📊 Logs
+            </button>
+          )}
           
           <button 
             onClick={handleLogout} 

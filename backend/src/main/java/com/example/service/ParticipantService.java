@@ -38,6 +38,9 @@ public class ParticipantService {
     @Autowired
     private EmailService emailService;
     
+    @Autowired
+    private ActivityLogService activityLogService;
+    
     public List<Participant> getAllParticipants() {
         return participantRepository.findAll();
     }
@@ -179,6 +182,16 @@ public class ParticipantService {
         participant.setCheckInTime(LocalDateTime.now());
         
         Participant saved = participantRepository.save(participant);
+        
+        // Registrar log de check-in
+        try {
+            String details = String.format("Check-in realizado para %s no evento %s", 
+                saved.getDisplayName(), saved.getEvent().getName());
+            activityLogService.logSuccess("CHECK_IN", "PARTICIPANT", saved.getId(), 
+                saved.getUser(), saved.getEvent(), details);
+        } catch (Exception e) {
+            System.err.println("Erro ao registrar log: " + e.getMessage());
+        }
         
         // Enviar certificado por email de forma assíncrona (não bloqueia o check-in)
         try {
