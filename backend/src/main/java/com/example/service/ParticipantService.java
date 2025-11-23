@@ -38,7 +38,7 @@ public class ParticipantService {
     @Autowired
     private EmailService emailService;
     
-    @Autowired
+    @Autowired(required = false)
     private ActivityLogService activityLogService;
     
     public List<Participant> getAllParticipants() {
