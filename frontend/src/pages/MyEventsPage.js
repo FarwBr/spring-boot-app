@@ -1,10 +1,9 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
 import './MyEventsPage.css';
 
 const PARTICIPANTS_API = 'http://177.44.248.75:8083/api';
-const EVENTS_API = 'http://177.44.248.75:8082/api';
 const CHECKIN_API = 'http://177.44.248.75:8084/api';
 
 function MyEventsPage() {
@@ -15,31 +14,7 @@ function MyEventsPage() {
   const [message, setMessage] = useState('');
   const navigate = useNavigate();
 
-  useEffect(() => {
-    // Verificar se é admin - se for, redirecionar
-    const userRole = localStorage.getItem('userRole');
-    if (userRole === 'ADMIN') {
-      setMessage({ text: 'Esta página é apenas para usuários finais. Redirecionando...', type: 'error' });
-      setTimeout(() => navigate('/events'), 2000);
-      return;
-    }
-
-    // Carregar usuário logado
-    const userId = localStorage.getItem('userId');
-    const userName = localStorage.getItem('userName');
-    const userEmail = localStorage.getItem('userEmail');
-
-    if (!userId) {
-      setMessage({ text: 'Você precisa fazer login primeiro', type: 'error' });
-      setTimeout(() => navigate('/'), 2000);
-      return;
-    }
-
-    setCurrentUser({ id: userId, name: userName, email: userEmail });
-    fetchMyEvents(userId);
-  }, [navigate]);
-
-  const fetchMyEvents = async (userId) => {
+  const fetchMyEvents = useCallback(async (userId) => {
     try {
       setLoading(true);
       const response = await axios.get(`${PARTICIPANTS_API}/participants/user/${userId}`);
@@ -60,7 +35,36 @@ function MyEventsPage() {
     } finally {
       setLoading(false);
     }
-  };
+  }, []);
+
+  const showMessage = useCallback((msg, type) => {
+    setMessage({ text: msg, type });
+    setTimeout(() => setMessage(''), 4000);
+  }, []);
+
+  useEffect(() => {
+    // Verificar se é admin - se for, redirecionar
+    const userRole = localStorage.getItem('userRole');
+    if (userRole === 'ADMIN') {
+      showMessage('Esta página é apenas para usuários finais. Redirecionando...', 'error');
+      setTimeout(() => navigate('/events'), 2000);
+      return;
+    }
+
+    // Carregar usuário logado
+    const userId = localStorage.getItem('userId');
+    const userName = localStorage.getItem('userName');
+    const userEmail = localStorage.getItem('userEmail');
+
+    if (!userId) {
+      showMessage('Você precisa fazer login primeiro', 'error');
+      setTimeout(() => navigate('/'), 2000);
+      return;
+    }
+
+    setCurrentUser({ id: userId, name: userName, email: userEmail });
+    fetchMyEvents(userId);
+  }, [navigate, fetchMyEvents, showMessage]);
 
   const downloadCertificate = async (participantId, eventId, eventName) => {
     try {
@@ -93,11 +97,6 @@ function MyEventsPage() {
     } finally {
       setLoading(false);
     }
-  };
-
-  const showMessage = (msg, type) => {
-    setMessage({ text: msg, type });
-    setTimeout(() => setMessage(''), 4000);
   };
 
   const formatDateTime = (dateTimeString) => {
