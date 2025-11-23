@@ -22,32 +22,38 @@ function MyEventsPage() {
 
   const initializePage = async () => {
     try {
-      const userId = localStorage.getItem('userId');
-      const userName = localStorage.getItem('userName');
-      const userEmail = localStorage.getItem('userEmail');
-      const userRole = localStorage.getItem('userRole');
-
-      if (!userId) {
+      const userDataString = localStorage.getItem('user');
+      
+      if (!userDataString) {
         showMessage('Você precisa fazer login primeiro', 'error');
+        setLoading(false);
+        return;
+      }
+
+      const userData = JSON.parse(userDataString);
+      const { id: userId, name: userName, email: userEmail, role: userRole } = userData;
+
+      if (!userId || !userName) {
+        showMessage('Dados de login inválidos. Faça login novamente.', 'error');
         setLoading(false);
         return;
       }
 
       const user = { id: userId, name: userName, email: userEmail };
       setCurrentUser(user);
-      setIsAdmin(userRole === 'ADMIN');
+      const adminStatus = userRole === 'ADMIN';
+      setIsAdmin(adminStatus);
 
-      if (userRole === 'ADMIN') {
+      if (adminStatus) {
         await loadUsers();
+        setLoading(false);
       } else {
         setSelectedUserId(userId);
         await loadUserEvents(userId);
       }
-
-      setLoading(false);
     } catch (error) {
       console.error('Erro ao inicializar:', error);
-      showMessage('Erro ao carregar dados', 'error');
+      showMessage('Erro ao carregar dados. Verifique seu login.', 'error');
       setLoading(false);
     }
   };
@@ -165,6 +171,41 @@ function MyEventsPage() {
     return (
       <div style={{ padding: '40px', textAlign: 'center' }}>
         <h3>⏳ Carregando...</h3>
+      </div>
+    );
+  }
+
+  if (!currentUser) {
+    return (
+      <div style={{ padding: '40px', textAlign: 'center' }}>
+        <div style={{
+          background: 'white',
+          padding: '40px',
+          borderRadius: '12px',
+          maxWidth: '500px',
+          margin: '0 auto',
+          boxShadow: '0 4px 6px rgba(0,0,0,0.1)'
+        }}>
+          <h3 style={{ color: '#dc3545', marginBottom: '20px' }}>⚠️ Login Necessário</h3>
+          <p style={{ color: '#666', marginBottom: '20px' }}>
+            Você precisa fazer login primeiro para acessar seus eventos.
+          </p>
+          <button
+            onClick={() => window.location.reload()}
+            style={{
+              padding: '12px 24px',
+              background: '#667eea',
+              color: 'white',
+              border: 'none',
+              borderRadius: '8px',
+              cursor: 'pointer',
+              fontWeight: 'bold',
+              fontSize: '16px'
+            }}
+          >
+            🔄 Recarregar Página
+          </button>
+        </div>
       </div>
     );
   }
