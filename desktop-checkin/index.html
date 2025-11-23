@@ -337,10 +337,10 @@
             <strong id="eventName"></strong>
             <div class="event-info" id="eventDetails"></div>
           </div>
-          <button class="btn btn-primary" style="width: 100%;" onclick="syncEventsData()">
+          <button class="btn btn-primary" style="width: 100%;" onclick="syncEventsData()" id="syncEventsBtn">
             🔄 Atualizar Eventos
           </button>
-          <button class="btn btn-danger" style="width: 100%; margin-top: 10px;" onclick="forceSyncFromServer()" title="Limpa base local e baixa tudo do servidor">
+          <button class="btn btn-danger" style="width: 100%; margin-top: 10px; display: none;" onclick="forceSyncFromServer()" id="forceSyncBtn" title="Limpa base local e baixa tudo do servidor">
             ⚡ Sincronização Forçada
           </button>
         </div>
@@ -431,15 +431,21 @@
       const indicator = document.getElementById('statusIndicator');
       const statusText = document.getElementById('statusText');
       const syncBtn = document.getElementById('syncBtn');
+      const syncEventsBtn = document.getElementById('syncEventsBtn');
+      const forceSyncBtn = document.getElementById('forceSyncBtn');
       
       if (isOnline) {
         indicator.className = 'status-indicator online';
         statusText.textContent = 'Online';
         syncBtn.disabled = false;
+        syncEventsBtn.disabled = false;
+        forceSyncBtn.style.display = 'block'; // Mostrar apenas quando online
       } else {
         indicator.className = 'status-indicator offline';
         statusText.textContent = 'Offline';
         syncBtn.disabled = true;
+        syncEventsBtn.disabled = true;
+        forceSyncBtn.style.display = 'none'; // Ocultar quando offline
       }
       
       await updatePendingCount();
