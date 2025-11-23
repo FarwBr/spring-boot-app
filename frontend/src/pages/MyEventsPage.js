@@ -9,7 +9,7 @@ function MyEventsPage() {
   const [currentUser, setCurrentUser] = useState(null);
   const [myEvents, setMyEvents] = useState([]);
   const [stats, setStats] = useState({ totalEvents: 0, checkedIn: 0, pending: 0 });
-  const [loading, setLoading] = useState(false);
+  const [loading, setLoading] = useState(true);
   const [message, setMessage] = useState('');
 
   const showMessage = (msg, type) => {
@@ -20,7 +20,6 @@ function MyEventsPage() {
   useEffect(() => {
     const fetchMyEvents = async (userId) => {
       try {
-        setLoading(true);
         const response = await axios.get(`${PARTICIPANTS_API}/participants/user/${userId}`);
         const events = response.data;
         
@@ -48,6 +47,7 @@ function MyEventsPage() {
 
     if (!userId) {
       showMessage('Você precisa fazer login primeiro', 'error');
+      setLoading(false);
       return;
     }
 
@@ -108,7 +108,7 @@ function MyEventsPage() {
     return participation.checkedIn && isEventFinished(participation.event?.endTime);
   };
 
-  if (!currentUser) {
+  if (loading) {
     return (
       <div className="page-container">
         <div className="loading-message">
