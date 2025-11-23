@@ -32,8 +32,8 @@ public class ParticipantWithEventDTO {
         private String location;
         private LocalDateTime startTime;
         private LocalDateTime endTime;
-        private Integer maxParticipants;
-        private Boolean isActive;
+        private Integer maxCapacity;
+        private Boolean active;
     }
     
     public static ParticipantWithEventDTO fromParticipant(Participant participant) {
@@ -56,8 +56,8 @@ public class ParticipantWithEventDTO {
             eventDTO.setLocation(event.getLocation());
             eventDTO.setStartTime(event.getStartTime());
             eventDTO.setEndTime(event.getEndTime());
-            eventDTO.setMaxParticipants(event.getMaxParticipants());
-            eventDTO.setIsActive(event.getIsActive());
+            eventDTO.setMaxCapacity(event.getMaxCapacity());
+            eventDTO.setActive(event.getActive());
             dto.setEvent(eventDTO);
         }
         
