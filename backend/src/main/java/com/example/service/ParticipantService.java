@@ -107,13 +107,13 @@ public class ParticipantService {
                 // Usar usuário existente
                 user = existingUser.get();
             } else {
-                // Criar novo usuário com senha padrão "123"
+                // Criar novo usuário com senha padrão "123456"
                 user = new User();
                 user.setName(participant.getName());
                 user.setEmail(participant.getEmail());
                 user.setPhone(participant.getPhone());
                 user.setCompany(participant.getCompany());
-                user.setPassword(passwordEncoder.encode("123"));
+                user.setPassword(passwordEncoder.encode("123456"));
                 user.setRole(UserRole.CLIENT);
                 user = userRepository.save(user);
             }
@@ -137,13 +137,13 @@ public class ParticipantService {
                 // Usar usuário existente
                 user = existingUser.get();
             } else {
-                // Criar novo usuário com senha padrão "123"
+                // Criar novo usuário com senha padrão "123456"
                 user = new User();
                 user.setName(participant.getName());
                 user.setEmail(participant.getEmail());
                 user.setPhone(participant.getPhone());
                 user.setCompany(participant.getCompany());
-                user.setPassword(passwordEncoder.encode("123"));
+                user.setPassword(passwordEncoder.encode("123456"));
                 user.setRole(UserRole.CLIENT);
                 user = userRepository.save(user);
             }
