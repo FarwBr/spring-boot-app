@@ -72,7 +72,6 @@ function MyEventsPage() {
     try {
       setLoading(true);
       const response = await axios.get(`${PARTICIPANTS_API}/participants/user/${userId}`);
-      console.log('Eventos carregados:', response.data);
       setMyEvents(response.data);
     } catch (error) {
       console.error('Erro ao carregar eventos:', error);
@@ -93,30 +92,16 @@ function MyEventsPage() {
 
   const downloadCertificate = async (participantId, eventId, eventName) => {
     try {
-      showMessage('Gerando certificado...', 'info');
+      showMessage('Abrindo certificado...', 'info');
       
-      const response = await axios.get(
-        `${CHECKIN_API}/certificates/participant/${participantId}/event/${eventId}`,
-        { responseType: 'blob' }
-      );
+      // Abrir o PDF em nova aba
+      const url = `${CHECKIN_API}/certificates/participant/${participantId}/event/${eventId}`;
+      window.open(url, '_blank');
       
-      const url = window.URL.createObjectURL(new Blob([response.data]));
-      const link = document.createElement('a');
-      link.href = url;
-      link.setAttribute('download', `certificado-${eventName.replace(/\s+/g, '-')}.pdf`);
-      document.body.appendChild(link);
-      link.click();
-      link.remove();
-      window.URL.revokeObjectURL(url);
-      
-      showMessage('Certificado baixado com sucesso!', 'success');
+      showMessage('Certificado aberto com sucesso!', 'success');
     } catch (error) {
-      console.error('Erro ao baixar certificado:', error);
-      if (error.response?.status === 404) {
-        showMessage('Certificado não disponível. Você precisa ter feito check-in e o evento deve estar finalizado.', 'error');
-      } else {
-        showMessage('Erro ao gerar certificado', 'error');
-      }
+      console.error('Erro ao abrir certificado:', error);
+      showMessage('Erro ao gerar certificado', 'error');
     }
   };
 
@@ -156,7 +141,6 @@ function MyEventsPage() {
     if (!endTime) return false;
     const eventEnd = new Date(endTime);
     const now = new Date();
-    console.log('Verificando evento:', { endTime, eventEnd, now, finished: eventEnd < now });
     return eventEnd < now;
   };
 
@@ -217,17 +201,6 @@ function MyEventsPage() {
 
   const activeEvents = myEvents.filter(p => !isEventFinished(p.event?.endTime));
   const finishedEvents = myEvents.filter(p => isEventFinished(p.event?.endTime));
-
-  console.log('Filtros de eventos:', { 
-    total: myEvents.length, 
-    active: activeEvents.length, 
-    finished: finishedEvents.length,
-    myEvents: myEvents.map(p => ({
-      name: p.event?.name,
-      endTime: p.event?.endTime,
-      isFinished: isEventFinished(p.event?.endTime)
-    }))
-  });
 
   return (
     <div style={{ padding: '20px', maxWidth: '1400px', margin: '0 auto' }}>
@@ -558,7 +531,7 @@ function MyEventsPage() {
                                 fontSize: '14px'
                               }}
                             >
-                              📄 Baixar Certificado
+                              📄 Ver Certificado
                             </button>
                           )}
                         </div>
