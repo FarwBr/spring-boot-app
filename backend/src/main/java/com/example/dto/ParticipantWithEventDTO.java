@@ -34,6 +34,7 @@ public class ParticipantWithEventDTO {
         private LocalDateTime endTime;
         private Integer maxCapacity;
         private Boolean active;
+        private Boolean finished;
     }
     
     public static ParticipantWithEventDTO fromParticipant(Participant participant) {
@@ -58,6 +59,7 @@ public class ParticipantWithEventDTO {
             eventDTO.setEndTime(event.getEndTime());
             eventDTO.setMaxCapacity(event.getMaxCapacity());
             eventDTO.setActive(event.getActive());
+            eventDTO.setFinished(event.getFinished());
             dto.setEvent(eventDTO);
         }
         

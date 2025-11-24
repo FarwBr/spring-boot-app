@@ -137,7 +137,11 @@ function MyEventsPage() {
     });
   };
 
-  const isEventFinished = (endTime) => {
+  const isEventFinished = (endTime, finishedByAdmin) => {
+    // Se admin marcou como finalizado, está finalizado
+    if (finishedByAdmin === true) return true;
+    
+    // Senão, verifica pela data
     if (!endTime) return false;
     const eventEnd = new Date(endTime);
     const now = new Date();
@@ -149,7 +153,7 @@ function MyEventsPage() {
   };
 
   const canDownloadCertificate = (participation) => {
-    return participation.checkedIn && isEventFinished(participation.event?.endTime);
+    return participation.checkedIn && isEventFinished(participation.event?.endTime, participation.event?.finished);
   };
 
   const canCancelParticipation = (participation) => {
@@ -199,8 +203,8 @@ function MyEventsPage() {
     );
   }
 
-  const activeEvents = myEvents.filter(p => !isEventFinished(p.event?.endTime));
-  const finishedEvents = myEvents.filter(p => isEventFinished(p.event?.endTime));
+  const activeEvents = myEvents.filter(p => !isEventFinished(p.event?.endTime, p.event?.finished));
+  const finishedEvents = myEvents.filter(p => isEventFinished(p.event?.endTime, p.event?.finished));
 
   return (
     <div style={{ padding: '20px', maxWidth: '1400px', margin: '0 auto' }}>
