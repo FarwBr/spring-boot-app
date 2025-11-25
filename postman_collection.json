@@ -65,9 +65,9 @@
             "method": "GET",
             "header": [],
             "url": {
-              "raw": "http://localhost:8081/api/users",
+              "raw": "http://177.44.248.75:8081/api/users",
               "protocol": "http",
-              "host": ["localhost"],
+              "host": ["177.44.248.75"],
               "port": "8081",
               "path": ["api", "users"]
             }
@@ -80,9 +80,9 @@
             "method": "GET",
             "header": [],
             "url": {
-              "raw": "http://localhost:8081/api/users/1",
+              "raw": "http://177.44.248.75:8081/api/users/1",
               "protocol": "http",
-              "host": ["localhost"],
+              "host": ["177.44.248.75"],
               "port": "8081",
               "path": ["api", "users", "1"]
             }
@@ -104,9 +104,9 @@
               "raw": "{\n  \"name\": \"Maria Santos\",\n  \"email\": \"maria@example.com\",\n  \"password\": \"senha123\",\n  \"role\": \"CLIENT\",\n  \"cpf\": \"98765432100\",\n  \"phone\": \"(51) 99999-8888\"\n}"
             },
             "url": {
-              "raw": "http://localhost:8081/api/users",
+              "raw": "http://177.44.248.75:8081/api/users",
               "protocol": "http",
-              "host": ["localhost"],
+              "host": ["177.44.248.75"],
               "port": "8081",
               "path": ["api", "users"]
             }
@@ -128,9 +128,9 @@
               "raw": "{\n  \"name\": \"Maria Santos Atualizada\",\n  \"email\": \"maria.nova@example.com\",\n  \"password\": \"novasenha123\",\n  \"role\": \"CLIENT\",\n  \"cpf\": \"98765432100\",\n  \"phone\": \"(51) 99999-7777\"\n}"
             },
             "url": {
-              "raw": "http://localhost:8081/api/users/1",
+              "raw": "http://177.44.248.75:8081/api/users/1",
               "protocol": "http",
-              "host": ["localhost"],
+              "host": ["177.44.248.75"],
               "port": "8081",
               "path": ["api", "users", "1"]
             }
@@ -143,9 +143,9 @@
             "method": "DELETE",
             "header": [],
             "url": {
-              "raw": "http://localhost:8081/api/users/1",
+              "raw": "http://177.44.248.75:8081/api/users/1",
               "protocol": "http",
-              "host": ["localhost"],
+              "host": ["177.44.248.75"],
               "port": "8081",
               "path": ["api", "users", "1"]
             }
@@ -163,9 +163,9 @@
             "method": "GET",
             "header": [],
             "url": {
-              "raw": "http://localhost:8082/api/events",
+              "raw": "http://177.44.248.75:8082/api/events",
               "protocol": "http",
-              "host": ["localhost"],
+              "host": ["177.44.248.75"],
               "port": "8082",
               "path": ["api", "events"]
             }
@@ -178,9 +178,9 @@
             "method": "GET",
             "header": [],
             "url": {
-              "raw": "http://localhost:8082/api/events/active",
+              "raw": "http://177.44.248.75:8082/api/events/active",
               "protocol": "http",
-              "host": ["localhost"],
+              "host": ["177.44.248.75"],
               "port": "8082",
               "path": ["api", "events", "active"]
             }
@@ -193,9 +193,9 @@
             "method": "GET",
             "header": [],
             "url": {
-              "raw": "http://localhost:8082/api/events/current",
+              "raw": "http://177.44.248.75:8082/api/events/current",
               "protocol": "http",
-              "host": ["localhost"],
+              "host": ["177.44.248.75"],
               "port": "8082",
               "path": ["api", "events", "current"]
             }
@@ -208,9 +208,9 @@
             "method": "GET",
             "header": [],
             "url": {
-              "raw": "http://localhost:8082/api/events/1",
+              "raw": "http://177.44.248.75:8082/api/events/1",
               "protocol": "http",
-              "host": ["localhost"],
+              "host": ["177.44.248.75"],
               "port": "8082",
               "path": ["api", "events", "1"]
             }
@@ -223,9 +223,9 @@
             "method": "GET",
             "header": [],
             "url": {
-              "raw": "http://localhost:8082/api/events/location/Sala 101",
+              "raw": "http://177.44.248.75:8082/api/events/location/Sala 101",
               "protocol": "http",
-              "host": ["localhost"],
+              "host": ["177.44.248.75"],
               "port": "8082",
               "path": ["api", "events", "location", "Sala 101"]
             }
@@ -238,9 +238,9 @@
             "method": "GET",
             "header": [],
             "url": {
-              "raw": "http://localhost:8082/api/events/range?start=2025-11-01T00:00:00&end=2025-12-31T23:59:59",
+              "raw": "http://177.44.248.75:8082/api/events/range?start=2025-11-01T00:00:00&end=2025-12-31T23:59:59",
               "protocol": "http",
-              "host": ["localhost"],
+              "host": ["177.44.248.75"],
               "port": "8082",
               "path": ["api", "events", "range"],
               "query": [
@@ -272,9 +272,9 @@
               "raw": "{\n  \"name\": \"Workshop React 2025\",\n  \"description\": \"Aprenda React do zero\",\n  \"location\": \"Sala 101\",\n  \"startTime\": \"2025-12-01T14:00:00\",\n  \"endTime\": \"2025-12-01T18:00:00\",\n  \"maxCapacity\": 50,\n  \"requiresRegistration\": true\n}"
             },
             "url": {
-              "raw": "http://localhost:8082/api/events",
+              "raw": "http://177.44.248.75:8082/api/events",
               "protocol": "http",
-              "host": ["localhost"],
+              "host": ["177.44.248.75"],
               "port": "8082",
               "path": ["api", "events"]
             }
@@ -296,9 +296,9 @@
               "raw": "{\n  \"name\": \"Workshop React Avançado 2025\",\n  \"description\": \"React com Hooks e Context API\",\n  \"location\": \"Sala 102\",\n  \"startTime\": \"2025-12-01T14:00:00\",\n  \"endTime\": \"2025-12-01T19:00:00\",\n  \"maxCapacity\": 60,\n  \"requiresRegistration\": true\n}"
             },
             "url": {
-              "raw": "http://localhost:8082/api/events/1",
+              "raw": "http://177.44.248.75:8082/api/events/1",
               "protocol": "http",
-              "host": ["localhost"],
+              "host": ["177.44.248.75"],
               "port": "8082",
               "path": ["api", "events", "1"]
             }
@@ -311,9 +311,9 @@
             "method": "PATCH",
             "header": [],
             "url": {
-              "raw": "http://localhost:8082/api/events/1/toggle-active",
+              "raw": "http://177.44.248.75:8082/api/events/1/toggle-active",
               "protocol": "http",
-              "host": ["localhost"],
+              "host": ["177.44.248.75"],
               "port": "8082",
               "path": ["api", "events", "1", "toggle-active"]
             }
@@ -326,9 +326,9 @@
             "method": "POST",
             "header": [],
             "url": {
-              "raw": "http://localhost:8082/api/events/1/finish",
+              "raw": "http://177.44.248.75:8082/api/events/1/finish",
               "protocol": "http",
-              "host": ["localhost"],
+              "host": ["177.44.248.75"],
               "port": "8082",
               "path": ["api", "events", "1", "finish"]
             }
@@ -341,9 +341,9 @@
             "method": "DELETE",
             "header": [],
             "url": {
-              "raw": "http://localhost:8082/api/events/1",
+              "raw": "http://177.44.248.75:8082/api/events/1",
               "protocol": "http",
-              "host": ["localhost"],
+              "host": ["177.44.248.75"],
               "port": "8082",
               "path": ["api", "events", "1"]
             }
@@ -361,9 +361,9 @@
             "method": "GET",
             "header": [],
             "url": {
-              "raw": "http://localhost:8083/api/participants",
+              "raw": "http://177.44.248.75:8083/api/participants",
               "protocol": "http",
-              "host": ["localhost"],
+              "host": ["177.44.248.75"],
               "port": "8083",
               "path": ["api", "participants"]
             }
@@ -376,9 +376,9 @@
             "method": "GET",
             "header": [],
             "url": {
-              "raw": "http://localhost:8083/api/participants/event/1",
+              "raw": "http://177.44.248.75:8083/api/participants/event/1",
               "protocol": "http",
-              "host": ["localhost"],
+              "host": ["177.44.248.75"],
               "port": "8083",
               "path": ["api", "participants", "event", "1"]
             }
@@ -391,9 +391,9 @@
             "method": "GET",
             "header": [],
             "url": {
-              "raw": "http://localhost:8083/api/participants/user/1",
+              "raw": "http://177.44.248.75:8083/api/participants/user/1",
               "protocol": "http",
-              "host": ["localhost"],
+              "host": ["177.44.248.75"],
               "port": "8083",
               "path": ["api", "participants", "user", "1"]
             }
@@ -406,9 +406,9 @@
             "method": "GET",
             "header": [],
             "url": {
-              "raw": "http://localhost:8083/api/participants/event/1/pending",
+              "raw": "http://177.44.248.75:8083/api/participants/event/1/pending",
               "protocol": "http",
-              "host": ["localhost"],
+              "host": ["177.44.248.75"],
               "port": "8083",
               "path": ["api", "participants", "event", "1", "pending"]
             }
@@ -421,9 +421,9 @@
             "method": "GET",
             "header": [],
             "url": {
-              "raw": "http://localhost:8083/api/participants/event/1/checked-in",
+              "raw": "http://177.44.248.75:8083/api/participants/event/1/checked-in",
               "protocol": "http",
-              "host": ["localhost"],
+              "host": ["177.44.248.75"],
               "port": "8083",
               "path": ["api", "participants", "event", "1", "checked-in"]
             }
@@ -436,9 +436,9 @@
             "method": "GET",
             "header": [],
             "url": {
-              "raw": "http://localhost:8083/api/participants/event/1/walk-ins",
+              "raw": "http://177.44.248.75:8083/api/participants/event/1/walk-ins",
               "protocol": "http",
-              "host": ["localhost"],
+              "host": ["177.44.248.75"],
               "port": "8083",
               "path": ["api", "participants", "event", "1", "walk-ins"]
             }
@@ -451,9 +451,9 @@
             "method": "GET",
             "header": [],
             "url": {
-              "raw": "http://localhost:8083/api/participants/event/1/stats",
+              "raw": "http://177.44.248.75:8083/api/participants/event/1/stats",
               "protocol": "http",
-              "host": ["localhost"],
+              "host": ["177.44.248.75"],
               "port": "8083",
               "path": ["api", "participants", "event", "1", "stats"]
             }
@@ -466,9 +466,9 @@
             "method": "GET",
             "header": [],
             "url": {
-              "raw": "http://localhost:8083/api/participants/user/1/stats",
+              "raw": "http://177.44.248.75:8083/api/participants/user/1/stats",
               "protocol": "http",
-              "host": ["localhost"],
+              "host": ["177.44.248.75"],
               "port": "8083",
               "path": ["api", "participants", "user", "1", "stats"]
             }
@@ -481,9 +481,9 @@
             "method": "GET",
             "header": [],
             "url": {
-              "raw": "http://localhost:8083/api/participants/1",
+              "raw": "http://177.44.248.75:8083/api/participants/1",
               "protocol": "http",
-              "host": ["localhost"],
+              "host": ["177.44.248.75"],
               "port": "8083",
               "path": ["api", "participants", "1"]
             }
@@ -496,9 +496,9 @@
             "method": "POST",
             "header": [],
             "url": {
-              "raw": "http://localhost:8083/api/participants/user/1/event/1/register",
+              "raw": "http://177.44.248.75:8083/api/participants/user/1/event/1/register",
               "protocol": "http",
-              "host": ["localhost"],
+              "host": ["177.44.248.75"],
               "port": "8083",
               "path": ["api", "participants", "user", "1", "event", "1", "register"]
             }
@@ -520,9 +520,9 @@
               "raw": "{\n  \"name\": \"Carlos Oliveira\",\n  \"email\": \"carlos@example.com\",\n  \"phone\": \"(51) 99888-7777\",\n  \"company\": \"Tech Solutions\"\n}"
             },
             "url": {
-              "raw": "http://localhost:8083/api/participants/event/1",
+              "raw": "http://177.44.248.75:8083/api/participants/event/1",
               "protocol": "http",
-              "host": ["localhost"],
+              "host": ["177.44.248.75"],
               "port": "8083",
               "path": ["api", "participants", "event", "1"]
             }
@@ -544,9 +544,9 @@
               "raw": "{\n  \"name\": \"Ana Paula\",\n  \"email\": \"ana@example.com\",\n  \"phone\": \"(51) 98888-6666\",\n  \"company\": \"Startup XYZ\"\n}"
             },
             "url": {
-              "raw": "http://localhost:8083/api/participants/event/1/walk-in",
+              "raw": "http://177.44.248.75:8083/api/participants/event/1/walk-in",
               "protocol": "http",
-              "host": ["localhost"],
+              "host": ["177.44.248.75"],
               "port": "8083",
               "path": ["api", "participants", "event", "1", "walk-in"]
             }
@@ -568,9 +568,9 @@
               "raw": "{\n  \"name\": \"Carlos Oliveira Jr\",\n  \"email\": \"carlos.jr@example.com\",\n  \"phone\": \"(51) 99888-5555\",\n  \"company\": \"Tech Solutions LTDA\"\n}"
             },
             "url": {
-              "raw": "http://localhost:8083/api/participants/1",
+              "raw": "http://177.44.248.75:8083/api/participants/1",
               "protocol": "http",
-              "host": ["localhost"],
+              "host": ["177.44.248.75"],
               "port": "8083",
               "path": ["api", "participants", "1"]
             }
@@ -583,9 +583,9 @@
             "method": "PATCH",
             "header": [],
             "url": {
-              "raw": "http://localhost:8083/api/participants/1/checkin",
+              "raw": "http://177.44.248.75:8083/api/participants/1/checkin",
               "protocol": "http",
-              "host": ["localhost"],
+              "host": ["177.44.248.75"],
               "port": "8083",
               "path": ["api", "participants", "1", "checkin"]
             }
@@ -598,9 +598,9 @@
             "method": "POST",
             "header": [],
             "url": {
-              "raw": "http://localhost:8083/api/participants/1/send-certificate",
+              "raw": "http://177.44.248.75:8083/api/participants/1/send-certificate",
               "protocol": "http",
-              "host": ["localhost"],
+              "host": ["177.44.248.75"],
               "port": "8083",
               "path": ["api", "participants", "1", "send-certificate"]
             }
@@ -613,9 +613,9 @@
             "method": "DELETE",
             "header": [],
             "url": {
-              "raw": "http://localhost:8083/api/participants/1",
+              "raw": "http://177.44.248.75:8083/api/participants/1",
               "protocol": "http",
-              "host": ["localhost"],
+              "host": ["177.44.248.75"],
               "port": "8083",
               "path": ["api", "participants", "1"]
             }
@@ -633,9 +633,9 @@
             "method": "GET",
             "header": [],
             "url": {
-              "raw": "http://localhost:8084/api/checkins",
+              "raw": "http://177.44.248.75:8084/api/checkins",
               "protocol": "http",
-              "host": ["localhost"],
+              "host": ["177.44.248.75"],
               "port": "8084",
               "path": ["api", "checkins"]
             }
@@ -648,9 +648,9 @@
             "method": "GET",
             "header": [],
             "url": {
-              "raw": "http://localhost:8084/api/checkins/1",
+              "raw": "http://177.44.248.75:8084/api/checkins/1",
               "protocol": "http",
-              "host": ["localhost"],
+              "host": ["177.44.248.75"],
               "port": "8084",
               "path": ["api", "checkins", "1"]
             }
@@ -663,9 +663,9 @@
             "method": "GET",
             "header": [],
             "url": {
-              "raw": "http://localhost:8084/api/checkins/range?start=2025-11-01T00:00:00&end=2025-12-31T23:59:59",
+              "raw": "http://177.44.248.75:8084/api/checkins/range?start=2025-11-01T00:00:00&end=2025-12-31T23:59:59",
               "protocol": "http",
-              "host": ["localhost"],
+              "host": ["177.44.248.75"],
               "port": "8084",
               "path": ["api", "checkins", "range"],
               "query": [
@@ -688,9 +688,9 @@
             "method": "GET",
             "header": [],
             "url": {
-              "raw": "http://localhost:8084/api/checkins/offline-synced",
+              "raw": "http://177.44.248.75:8084/api/checkins/offline-synced",
               "protocol": "http",
-              "host": ["localhost"],
+              "host": ["177.44.248.75"],
               "port": "8084",
               "path": ["api", "checkins", "offline-synced"]
             }
@@ -712,9 +712,9 @@
               "raw": "{\n  \"participantId\": 1,\n  \"eventId\": 1,\n  \"checkInTime\": \"2025-11-24T15:30:00\",\n  \"offlineSync\": false\n}"
             },
             "url": {
-              "raw": "http://localhost:8084/api/checkins",
+              "raw": "http://177.44.248.75:8084/api/checkins",
               "protocol": "http",
-              "host": ["localhost"],
+              "host": ["177.44.248.75"],
               "port": "8084",
               "path": ["api", "checkins"]
             }
@@ -736,9 +736,9 @@
               "raw": "[\n  {\n    \"participantId\": 2,\n    \"eventId\": 1,\n    \"checkInTime\": \"2025-11-24T16:00:00\",\n    \"offlineSync\": true\n  },\n  {\n    \"participantId\": 3,\n    \"eventId\": 1,\n    \"checkInTime\": \"2025-11-24T16:15:00\",\n    \"offlineSync\": true\n  }\n]"
             },
             "url": {
-              "raw": "http://localhost:8084/api/checkins/sync",
+              "raw": "http://177.44.248.75:8084/api/checkins/sync",
               "protocol": "http",
-              "host": ["localhost"],
+              "host": ["177.44.248.75"],
               "port": "8084",
               "path": ["api", "checkins", "sync"]
             }
@@ -760,9 +760,9 @@
               "raw": "{\n  \"participantId\": 1,\n  \"eventId\": 1,\n  \"checkInTime\": \"2025-11-24T15:45:00\",\n  \"offlineSync\": false\n}"
             },
             "url": {
-              "raw": "http://localhost:8084/api/checkins/1",
+              "raw": "http://177.44.248.75:8084/api/checkins/1",
               "protocol": "http",
-              "host": ["localhost"],
+              "host": ["177.44.248.75"],
               "port": "8084",
               "path": ["api", "checkins", "1"]
             }
@@ -775,9 +775,9 @@
             "method": "DELETE",
             "header": [],
             "url": {
-              "raw": "http://localhost:8084/api/checkins/1",
+              "raw": "http://177.44.248.75:8084/api/checkins/1",
               "protocol": "http",
-              "host": ["localhost"],
+              "host": ["177.44.248.75"],
               "port": "8084",
               "path": ["api", "checkins", "1"]
             }
@@ -795,9 +795,9 @@
             "method": "GET",
             "header": [],
             "url": {
-              "raw": "http://localhost:8084/api/certificates/validate/ABC123DEF456",
+              "raw": "http://177.44.248.75:8084/api/certificates/validate/ABC123DEF456",
               "protocol": "http",
-              "host": ["localhost"],
+              "host": ["177.44.248.75"],
               "port": "8084",
               "path": ["api", "certificates", "validate", "ABC123DEF456"]
             }
@@ -810,9 +810,9 @@
             "method": "GET",
             "header": [],
             "url": {
-              "raw": "http://localhost:8084/api/certificates/participant/1",
+              "raw": "http://177.44.248.75:8084/api/certificates/participant/1",
               "protocol": "http",
-              "host": ["localhost"],
+              "host": ["177.44.248.75"],
               "port": "8084",
               "path": ["api", "certificates", "participant", "1"]
             }
@@ -825,9 +825,9 @@
             "method": "GET",
             "header": [],
             "url": {
-              "raw": "http://localhost:8084/api/certificates/participant/1/event/1",
+              "raw": "http://177.44.248.75:8084/api/certificates/participant/1/event/1",
               "protocol": "http",
-              "host": ["localhost"],
+              "host": ["177.44.248.75"],
               "port": "8084",
               "path": ["api", "certificates", "participant", "1", "event", "1"]
             },
@@ -846,9 +846,9 @@
             "method": "GET",
             "header": [],
             "url": {
-              "raw": "http://localhost:8085/api/notifications",
+              "raw": "http://177.44.248.75:8085/api/notifications",
               "protocol": "http",
-              "host": ["localhost"],
+              "host": ["177.44.248.75"],
               "port": "8085",
               "path": ["api", "notifications"]
             }
@@ -861,9 +861,9 @@
             "method": "GET",
             "header": [],
             "url": {
-              "raw": "http://localhost:8085/api/notifications/1",
+              "raw": "http://177.44.248.75:8085/api/notifications/1",
               "protocol": "http",
-              "host": ["localhost"],
+              "host": ["177.44.248.75"],
               "port": "8085",
               "path": ["api", "notifications", "1"]
             }
@@ -876,9 +876,9 @@
             "method": "GET",
             "header": [],
             "url": {
-              "raw": "http://localhost:8085/api/notifications/user/1",
+              "raw": "http://177.44.248.75:8085/api/notifications/user/1",
               "protocol": "http",
-              "host": ["localhost"],
+              "host": ["177.44.248.75"],
               "port": "8085",
               "path": ["api", "notifications", "user", "1"]
             }
@@ -891,9 +891,9 @@
             "method": "GET",
             "header": [],
             "url": {
-              "raw": "http://localhost:8085/api/notifications/user/1/unread",
+              "raw": "http://177.44.248.75:8085/api/notifications/user/1/unread",
               "protocol": "http",
-              "host": ["localhost"],
+              "host": ["177.44.248.75"],
               "port": "8085",
               "path": ["api", "notifications", "user", "1", "unread"]
             }
@@ -915,9 +915,9 @@
               "raw": "{\n  \"userId\": 1,\n  \"type\": \"EVENT_REMINDER\",\n  \"message\": \"Lembrete: seu evento começa em 1 hora!\",\n  \"read\": false\n}"
             },
             "url": {
-              "raw": "http://localhost:8085/api/notifications",
+              "raw": "http://177.44.248.75:8085/api/notifications",
               "protocol": "http",
-              "host": ["localhost"],
+              "host": ["177.44.248.75"],
               "port": "8085",
               "path": ["api", "notifications"]
             }
@@ -930,9 +930,9 @@
             "method": "PATCH",
             "header": [],
             "url": {
-              "raw": "http://localhost:8085/api/notifications/1/read",
+              "raw": "http://177.44.248.75:8085/api/notifications/1/read",
               "protocol": "http",
-              "host": ["localhost"],
+              "host": ["177.44.248.75"],
               "port": "8085",
               "path": ["api", "notifications", "1", "read"]
             }
@@ -945,9 +945,9 @@
             "method": "PATCH",
             "header": [],
             "url": {
-              "raw": "http://localhost:8085/api/notifications/user/1/read-all",
+              "raw": "http://177.44.248.75:8085/api/notifications/user/1/read-all",
               "protocol": "http",
-              "host": ["localhost"],
+              "host": ["177.44.248.75"],
               "port": "8085",
               "path": ["api", "notifications", "user", "1", "read-all"]
             }
@@ -960,9 +960,9 @@
             "method": "DELETE",
             "header": [],
             "url": {
-              "raw": "http://localhost:8085/api/notifications/1",
+              "raw": "http://177.44.248.75:8085/api/notifications/1",
               "protocol": "http",
-              "host": ["localhost"],
+              "host": ["177.44.248.75"],
               "port": "8085",
               "path": ["api", "notifications", "1"]
             }
@@ -980,9 +980,9 @@
             "method": "GET",
             "header": [],
             "url": {
-              "raw": "http://localhost:8080/api/activity-logs",
+              "raw": "http://177.44.248.75:8080/api/activity-logs",
               "protocol": "http",
-              "host": ["localhost"],
+              "host": ["177.44.248.75"],
               "port": "8080",
               "path": ["api", "activity-logs"]
             }
@@ -995,9 +995,9 @@
             "method": "GET",
             "header": [],
             "url": {
-              "raw": "http://localhost:8080/api/activity-logs/event/1",
+              "raw": "http://177.44.248.75:8080/api/activity-logs/event/1",
               "protocol": "http",
-              "host": ["localhost"],
+              "host": ["177.44.248.75"],
               "port": "8080",
               "path": ["api", "activity-logs", "event", "1"]
             }
@@ -1010,9 +1010,9 @@
             "method": "GET",
             "header": [],
             "url": {
-              "raw": "http://localhost:8080/api/activity-logs/user/1",
+              "raw": "http://177.44.248.75:8080/api/activity-logs/user/1",
               "protocol": "http",
-              "host": ["localhost"],
+              "host": ["177.44.248.75"],
               "port": "8080",
               "path": ["api", "activity-logs", "user", "1"]
             }
@@ -1025,9 +1025,9 @@
             "method": "GET",
             "header": [],
             "url": {
-              "raw": "http://localhost:8080/api/activity-logs/action/CHECKIN_PERFORMED",
+              "raw": "http://177.44.248.75:8080/api/activity-logs/action/CHECKIN_PERFORMED",
               "protocol": "http",
-              "host": ["localhost"],
+              "host": ["177.44.248.75"],
               "port": "8080",
               "path": ["api", "activity-logs", "action", "CHECKIN_PERFORMED"]
             }
@@ -1040,9 +1040,9 @@
             "method": "GET",
             "header": [],
             "url": {
-              "raw": "http://localhost:8080/api/activity-logs/level/ERROR",
+              "raw": "http://177.44.248.75:8080/api/activity-logs/level/ERROR",
               "protocol": "http",
-              "host": ["localhost"],
+              "host": ["177.44.248.75"],
               "port": "8080",
               "path": ["api", "activity-logs", "level", "ERROR"]
             }
@@ -1055,9 +1055,9 @@
             "method": "GET",
             "header": [],
             "url": {
-              "raw": "http://localhost:8080/api/activity-logs/range?start=2025-11-01T00:00:00&end=2025-12-31T23:59:59",
+              "raw": "http://177.44.248.75:8080/api/activity-logs/range?start=2025-11-01T00:00:00&end=2025-12-31T23:59:59",
               "protocol": "http",
-              "host": ["localhost"],
+              "host": ["177.44.248.75"],
               "port": "8080",
               "path": ["api", "activity-logs", "range"],
               "query": [
@@ -1080,9 +1080,9 @@
             "method": "GET",
             "header": [],
             "url": {
-              "raw": "http://localhost:8080/api/activity-logs/stats",
+              "raw": "http://177.44.248.75:8080/api/activity-logs/stats",
               "protocol": "http",
-              "host": ["localhost"],
+              "host": ["177.44.248.75"],
               "port": "8080",
               "path": ["api", "activity-logs", "stats"]
             }
@@ -1095,8 +1095,9 @@
   "variable": [
     {
       "key": "baseUrl",
-      "value": "http://localhost:8080/api",
+      "value": "http://177.44.248.75:8080/api",
       "type": "string"
     }
   ]
 }
+
