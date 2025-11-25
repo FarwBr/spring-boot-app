@@ -148,16 +148,15 @@ function MyEventsPage() {
     return eventEnd < now;
   };
 
-  const isEventStarted = (startTime) => {
-    return new Date(startTime) < new Date();
-  };
+  
 
   const canDownloadCertificate = (participation) => {
     return participation.checkedIn && isEventFinished(participation.event?.endTime, participation.event?.finished);
   };
 
   const canCancelParticipation = (participation) => {
-    return !participation.checkedIn && !isEventStarted(participation.event?.startTime);
+    // Pode cancelar se ainda não fez check-in e o evento não foi finalizado
+    return !participation.checkedIn && !isEventFinished(participation.event?.endTime, participation.event?.finished);
   };
 
   if (loading) {
