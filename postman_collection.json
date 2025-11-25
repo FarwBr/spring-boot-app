@@ -1,12 +1,63 @@
 {
   "info": {
-    "name": "Spring Boot App - API Collection",
-    "description": "Coleção completa de requisições para testar todos os 5 serviços da aplicação",
-    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+    "name": "Sistema de Gestão de Eventos - API Collection",
+    "description": "Coleção completa de requisições para testar todos os endpoints do sistema de eventos com check-in, certificados e notificações",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+    "_postman_id": "evento-checkin-api",
+    "version": "2.0.0"
   },
   "item": [
     {
-      "name": "👥 Users",
+      "name": "🔐 Authentication",
+      "item": [
+        {
+          "name": "Register User",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"João Silva\",\n  \"email\": \"joao@example.com\",\n  \"password\": \"senha123\",\n  \"role\": \"CLIENT\",\n  \"cpf\": \"12345678900\",\n  \"phone\": \"(51) 98765-4321\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/auth/register",
+              "host": ["{{baseUrl}}"],
+              "path": ["auth", "register"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Login",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"admin@example.com\",\n  \"password\": \"senha123\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/auth/login",
+              "host": ["{{baseUrl}}"],
+              "path": ["auth", "login"]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "👥 Users (Port 8081)",
       "item": [
         {
           "name": "Get All Users",
@@ -14,13 +65,14 @@
             "method": "GET",
             "header": [],
             "url": {
-              "raw": "http://localhost:8080/api/users",
+              "raw": "http://localhost:8081/api/users",
               "protocol": "http",
               "host": ["localhost"],
-              "port": "8080",
+              "port": "8081",
               "path": ["api", "users"]
             }
-          }
+          },
+          "response": []
         },
         {
           "name": "Get User by ID",
@@ -28,13 +80,14 @@
             "method": "GET",
             "header": [],
             "url": {
-              "raw": "http://localhost:8080/api/users/1",
+              "raw": "http://localhost:8081/api/users/1",
               "protocol": "http",
               "host": ["localhost"],
-              "port": "8080",
+              "port": "8081",
               "path": ["api", "users", "1"]
             }
-          }
+          },
+          "response": []
         },
         {
           "name": "Create User",
@@ -48,16 +101,17 @@
             ],
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"name\": \"João Silva\",\n  \"email\": \"joao@example.com\",\n  \"cpf\": \"12345678900\",\n  \"phone\": \"(11) 98765-4321\"\n}"
+              "raw": "{\n  \"name\": \"Maria Santos\",\n  \"email\": \"maria@example.com\",\n  \"password\": \"senha123\",\n  \"role\": \"CLIENT\",\n  \"cpf\": \"98765432100\",\n  \"phone\": \"(51) 99999-8888\"\n}"
             },
             "url": {
-              "raw": "http://localhost:8080/api/users",
+              "raw": "http://localhost:8081/api/users",
               "protocol": "http",
               "host": ["localhost"],
-              "port": "8080",
+              "port": "8081",
               "path": ["api", "users"]
             }
-          }
+          },
+          "response": []
         },
         {
           "name": "Update User",
@@ -71,16 +125,17 @@
             ],
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"name\": \"João Silva Atualizado\",\n  \"email\": \"joao.novo@example.com\",\n  \"cpf\": \"12345678900\",\n  \"phone\": \"(11) 98765-9999\"\n}"
+              "raw": "{\n  \"name\": \"Maria Santos Atualizada\",\n  \"email\": \"maria.nova@example.com\",\n  \"password\": \"novasenha123\",\n  \"role\": \"CLIENT\",\n  \"cpf\": \"98765432100\",\n  \"phone\": \"(51) 99999-7777\"\n}"
             },
             "url": {
-              "raw": "http://localhost:8080/api/users/1",
+              "raw": "http://localhost:8081/api/users/1",
               "protocol": "http",
               "host": ["localhost"],
-              "port": "8080",
+              "port": "8081",
               "path": ["api", "users", "1"]
             }
-          }
+          },
+          "response": []
         },
         {
           "name": "Delete User",
@@ -88,49 +143,122 @@
             "method": "DELETE",
             "header": [],
             "url": {
-              "raw": "http://localhost:8080/api/users/1",
+              "raw": "http://localhost:8081/api/users/1",
               "protocol": "http",
               "host": ["localhost"],
-              "port": "8080",
+              "port": "8081",
               "path": ["api", "users", "1"]
             }
-          }
+          },
+          "response": []
         }
       ]
     },
     {
-      "name": "📦 Products",
+      "name": "🎪 Events (Port 8082)",
       "item": [
         {
-          "name": "Get All Products",
+          "name": "Get All Events",
           "request": {
             "method": "GET",
             "header": [],
             "url": {
-              "raw": "http://localhost:8080/api/products",
+              "raw": "http://localhost:8082/api/events",
               "protocol": "http",
               "host": ["localhost"],
-              "port": "8080",
-              "path": ["api", "products"]
+              "port": "8082",
+              "path": ["api", "events"]
             }
-          }
+          },
+          "response": []
         },
         {
-          "name": "Get Product by ID",
+          "name": "Get Active Events",
           "request": {
             "method": "GET",
             "header": [],
             "url": {
-              "raw": "http://localhost:8080/api/products/1",
+              "raw": "http://localhost:8082/api/events/active",
               "protocol": "http",
               "host": ["localhost"],
-              "port": "8080",
-              "path": ["api", "products", "1"]
+              "port": "8082",
+              "path": ["api", "events", "active"]
             }
-          }
+          },
+          "response": []
         },
         {
-          "name": "Create Product",
+          "name": "Get Current Events",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "http://localhost:8082/api/events/current",
+              "protocol": "http",
+              "host": ["localhost"],
+              "port": "8082",
+              "path": ["api", "events", "current"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Get Event by ID",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "http://localhost:8082/api/events/1",
+              "protocol": "http",
+              "host": ["localhost"],
+              "port": "8082",
+              "path": ["api", "events", "1"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Get Events by Location",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "http://localhost:8082/api/events/location/Sala 101",
+              "protocol": "http",
+              "host": ["localhost"],
+              "port": "8082",
+              "path": ["api", "events", "location", "Sala 101"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Get Events by Date Range",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "http://localhost:8082/api/events/range?start=2025-11-01T00:00:00&end=2025-12-31T23:59:59",
+              "protocol": "http",
+              "host": ["localhost"],
+              "port": "8082",
+              "path": ["api", "events", "range"],
+              "query": [
+                {
+                  "key": "start",
+                  "value": "2025-11-01T00:00:00"
+                },
+                {
+                  "key": "end",
+                  "value": "2025-12-31T23:59:59"
+                }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Create Event",
           "request": {
             "method": "POST",
             "header": [
@@ -141,19 +269,20 @@
             ],
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"name\": \"Notebook Dell\",\n  \"description\": \"Notebook i7 16GB RAM 512GB SSD\",\n  \"price\": 3500.00,\n  \"stock\": 10,\n  \"category\": \"Eletrônicos\"\n}"
+              "raw": "{\n  \"name\": \"Workshop React 2025\",\n  \"description\": \"Aprenda React do zero\",\n  \"location\": \"Sala 101\",\n  \"startTime\": \"2025-12-01T14:00:00\",\n  \"endTime\": \"2025-12-01T18:00:00\",\n  \"maxCapacity\": 50,\n  \"requiresRegistration\": true\n}"
             },
             "url": {
-              "raw": "http://localhost:8080/api/products",
+              "raw": "http://localhost:8082/api/events",
               "protocol": "http",
               "host": ["localhost"],
-              "port": "8080",
-              "path": ["api", "products"]
+              "port": "8082",
+              "path": ["api", "events"]
             }
-          }
+          },
+          "response": []
         },
         {
-          "name": "Update Product",
+          "name": "Update Event",
           "request": {
             "method": "PUT",
             "header": [
@@ -164,100 +293,220 @@
             ],
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"name\": \"Notebook Dell XPS\",\n  \"description\": \"Notebook i7 16GB RAM 1TB SSD\",\n  \"price\": 4500.00,\n  \"stock\": 5,\n  \"category\": \"Eletrônicos\"\n}"
+              "raw": "{\n  \"name\": \"Workshop React Avançado 2025\",\n  \"description\": \"React com Hooks e Context API\",\n  \"location\": \"Sala 102\",\n  \"startTime\": \"2025-12-01T14:00:00\",\n  \"endTime\": \"2025-12-01T19:00:00\",\n  \"maxCapacity\": 60,\n  \"requiresRegistration\": true\n}"
             },
             "url": {
-              "raw": "http://localhost:8080/api/products/1",
+              "raw": "http://localhost:8082/api/events/1",
               "protocol": "http",
               "host": ["localhost"],
-              "port": "8080",
-              "path": ["api", "products", "1"]
+              "port": "8082",
+              "path": ["api", "events", "1"]
             }
-          }
+          },
+          "response": []
         },
         {
-          "name": "Update Stock",
+          "name": "Toggle Event Active Status",
           "request": {
             "method": "PATCH",
             "header": [],
             "url": {
-              "raw": "http://localhost:8080/api/products/1/stock?quantity=20",
+              "raw": "http://localhost:8082/api/events/1/toggle-active",
               "protocol": "http",
               "host": ["localhost"],
-              "port": "8080",
-              "path": ["api", "products", "1", "stock"],
-              "query": [
-                {
-                  "key": "quantity",
-                  "value": "20"
-                }
-              ]
+              "port": "8082",
+              "path": ["api", "events", "1", "toggle-active"]
             }
-          }
+          },
+          "response": []
         },
         {
-          "name": "Delete Product",
+          "name": "Finish Event",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "url": {
+              "raw": "http://localhost:8082/api/events/1/finish",
+              "protocol": "http",
+              "host": ["localhost"],
+              "port": "8082",
+              "path": ["api", "events", "1", "finish"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Delete Event",
           "request": {
             "method": "DELETE",
             "header": [],
             "url": {
-              "raw": "http://localhost:8080/api/products/1",
+              "raw": "http://localhost:8082/api/events/1",
               "protocol": "http",
               "host": ["localhost"],
-              "port": "8080",
-              "path": ["api", "products", "1"]
+              "port": "8082",
+              "path": ["api", "events", "1"]
             }
-          }
+          },
+          "response": []
         }
       ]
     },
     {
-      "name": "🛒 Orders",
+      "name": "🎟️ Participants (Port 8083)",
       "item": [
         {
-          "name": "Get All Orders",
+          "name": "Get All Participants",
           "request": {
             "method": "GET",
             "header": [],
             "url": {
-              "raw": "http://localhost:8080/api/orders",
+              "raw": "http://localhost:8083/api/participants",
               "protocol": "http",
               "host": ["localhost"],
-              "port": "8080",
-              "path": ["api", "orders"]
+              "port": "8083",
+              "path": ["api", "participants"]
             }
-          }
+          },
+          "response": []
         },
         {
-          "name": "Get Order by ID",
+          "name": "Get Participants by Event",
           "request": {
             "method": "GET",
             "header": [],
             "url": {
-              "raw": "http://localhost:8080/api/orders/1",
+              "raw": "http://localhost:8083/api/participants/event/1",
               "protocol": "http",
               "host": ["localhost"],
-              "port": "8080",
-              "path": ["api", "orders", "1"]
+              "port": "8083",
+              "path": ["api", "participants", "event", "1"]
             }
-          }
+          },
+          "response": []
         },
         {
-          "name": "Get Orders by User",
+          "name": "Get Participations by User",
           "request": {
             "method": "GET",
             "header": [],
             "url": {
-              "raw": "http://localhost:8080/api/orders/user/1",
+              "raw": "http://localhost:8083/api/participants/user/1",
               "protocol": "http",
               "host": ["localhost"],
-              "port": "8080",
-              "path": ["api", "orders", "user", "1"]
+              "port": "8083",
+              "path": ["api", "participants", "user", "1"]
             }
-          }
+          },
+          "response": []
         },
         {
-          "name": "Create Order",
+          "name": "Get Pending Check-ins",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "http://localhost:8083/api/participants/event/1/pending",
+              "protocol": "http",
+              "host": ["localhost"],
+              "port": "8083",
+              "path": ["api", "participants", "event", "1", "pending"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Get Checked-in Participants",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "http://localhost:8083/api/participants/event/1/checked-in",
+              "protocol": "http",
+              "host": ["localhost"],
+              "port": "8083",
+              "path": ["api", "participants", "event", "1", "checked-in"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Get Walk-ins",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "http://localhost:8083/api/participants/event/1/walk-ins",
+              "protocol": "http",
+              "host": ["localhost"],
+              "port": "8083",
+              "path": ["api", "participants", "event", "1", "walk-ins"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Get Event Stats",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "http://localhost:8083/api/participants/event/1/stats",
+              "protocol": "http",
+              "host": ["localhost"],
+              "port": "8083",
+              "path": ["api", "participants", "event", "1", "stats"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Get User Stats",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "http://localhost:8083/api/participants/user/1/stats",
+              "protocol": "http",
+              "host": ["localhost"],
+              "port": "8083",
+              "path": ["api", "participants", "user", "1", "stats"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Get Participant by ID",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "http://localhost:8083/api/participants/1",
+              "protocol": "http",
+              "host": ["localhost"],
+              "port": "8083",
+              "path": ["api", "participants", "1"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Register User to Event",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "url": {
+              "raw": "http://localhost:8083/api/participants/user/1/event/1/register",
+              "protocol": "http",
+              "host": ["localhost"],
+              "port": "8083",
+              "path": ["api", "participants", "user", "1", "event", "1", "register"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Create Participant",
           "request": {
             "method": "POST",
             "header": [
@@ -268,19 +517,44 @@
             ],
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"userId\": 1,\n  \"status\": \"PENDING\",\n  \"totalAmount\": 3500.00,\n  \"items\": []\n}"
+              "raw": "{\n  \"name\": \"Carlos Oliveira\",\n  \"email\": \"carlos@example.com\",\n  \"phone\": \"(51) 99888-7777\",\n  \"company\": \"Tech Solutions\"\n}"
             },
             "url": {
-              "raw": "http://localhost:8080/api/orders",
+              "raw": "http://localhost:8083/api/participants/event/1",
               "protocol": "http",
               "host": ["localhost"],
-              "port": "8080",
-              "path": ["api", "orders"]
+              "port": "8083",
+              "path": ["api", "participants", "event", "1"]
             }
-          }
+          },
+          "response": []
         },
         {
-          "name": "Update Order",
+          "name": "Register Walk-in",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Ana Paula\",\n  \"email\": \"ana@example.com\",\n  \"phone\": \"(51) 98888-6666\",\n  \"company\": \"Startup XYZ\"\n}"
+            },
+            "url": {
+              "raw": "http://localhost:8083/api/participants/event/1/walk-in",
+              "protocol": "http",
+              "host": ["localhost"],
+              "port": "8083",
+              "path": ["api", "participants", "event", "1", "walk-in"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Update Participant",
           "request": {
             "method": "PUT",
             "header": [
@@ -291,101 +565,140 @@
             ],
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"userId\": 1,\n  \"status\": \"PROCESSING\",\n  \"totalAmount\": 4000.00,\n  \"items\": []\n}"
+              "raw": "{\n  \"name\": \"Carlos Oliveira Jr\",\n  \"email\": \"carlos.jr@example.com\",\n  \"phone\": \"(51) 99888-5555\",\n  \"company\": \"Tech Solutions LTDA\"\n}"
             },
             "url": {
-              "raw": "http://localhost:8080/api/orders/1",
+              "raw": "http://localhost:8083/api/participants/1",
               "protocol": "http",
               "host": ["localhost"],
-              "port": "8080",
-              "path": ["api", "orders", "1"]
+              "port": "8083",
+              "path": ["api", "participants", "1"]
             }
-          }
+          },
+          "response": []
         },
         {
-          "name": "Update Order Status",
+          "name": "Perform Check-in",
           "request": {
             "method": "PATCH",
             "header": [],
             "url": {
-              "raw": "http://localhost:8080/api/orders/1/status?status=SHIPPED",
+              "raw": "http://localhost:8083/api/participants/1/checkin",
               "protocol": "http",
               "host": ["localhost"],
-              "port": "8080",
-              "path": ["api", "orders", "1", "status"],
-              "query": [
-                {
-                  "key": "status",
-                  "value": "SHIPPED",
-                  "description": "PENDING | PROCESSING | SHIPPED | DELIVERED | CANCELLED"
-                }
-              ]
+              "port": "8083",
+              "path": ["api", "participants", "1", "checkin"]
             }
-          }
+          },
+          "response": []
         },
         {
-          "name": "Delete Order",
+          "name": "Send Certificate Email",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "url": {
+              "raw": "http://localhost:8083/api/participants/1/send-certificate",
+              "protocol": "http",
+              "host": ["localhost"],
+              "port": "8083",
+              "path": ["api", "participants", "1", "send-certificate"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Cancel Participation",
           "request": {
             "method": "DELETE",
             "header": [],
             "url": {
-              "raw": "http://localhost:8080/api/orders/1",
+              "raw": "http://localhost:8083/api/participants/1",
               "protocol": "http",
               "host": ["localhost"],
-              "port": "8080",
-              "path": ["api", "orders", "1"]
+              "port": "8083",
+              "path": ["api", "participants", "1"]
             }
-          }
+          },
+          "response": []
         }
       ]
     },
     {
-      "name": "💳 Payments",
+      "name": "✅ Check-ins (Port 8084)",
       "item": [
         {
-          "name": "Get All Payments",
+          "name": "Get All Check-ins",
           "request": {
             "method": "GET",
             "header": [],
             "url": {
-              "raw": "http://localhost:8080/api/payments",
+              "raw": "http://localhost:8084/api/checkins",
               "protocol": "http",
               "host": ["localhost"],
-              "port": "8080",
-              "path": ["api", "payments"]
+              "port": "8084",
+              "path": ["api", "checkins"]
             }
-          }
+          },
+          "response": []
         },
         {
-          "name": "Get Payment by ID",
+          "name": "Get Check-in by ID",
           "request": {
             "method": "GET",
             "header": [],
             "url": {
-              "raw": "http://localhost:8080/api/payments/1",
+              "raw": "http://localhost:8084/api/checkins/1",
               "protocol": "http",
               "host": ["localhost"],
-              "port": "8080",
-              "path": ["api", "payments", "1"]
+              "port": "8084",
+              "path": ["api", "checkins", "1"]
             }
-          }
+          },
+          "response": []
         },
         {
-          "name": "Get Payments by User",
+          "name": "Get Check-ins by Date Range",
           "request": {
             "method": "GET",
             "header": [],
             "url": {
-              "raw": "http://localhost:8080/api/payments/user/1",
+              "raw": "http://localhost:8084/api/checkins/range?start=2025-11-01T00:00:00&end=2025-12-31T23:59:59",
               "protocol": "http",
               "host": ["localhost"],
-              "port": "8080",
-              "path": ["api", "payments", "user", "1"]
+              "port": "8084",
+              "path": ["api", "checkins", "range"],
+              "query": [
+                {
+                  "key": "start",
+                  "value": "2025-11-01T00:00:00"
+                },
+                {
+                  "key": "end",
+                  "value": "2025-12-31T23:59:59"
+                }
+              ]
             }
-          }
+          },
+          "response": []
         },
         {
-          "name": "Create Payment",
+          "name": "Get Offline Synced Check-ins",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "http://localhost:8084/api/checkins/offline-synced",
+              "protocol": "http",
+              "host": ["localhost"],
+              "port": "8084",
+              "path": ["api", "checkins", "offline-synced"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Create Check-in",
           "request": {
             "method": "POST",
             "header": [
@@ -396,49 +709,136 @@
             ],
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"userId\": 1,\n  \"orderId\": 1,\n  \"amount\": 3500.00,\n  \"paymentMethod\": \"CREDIT_CARD\",\n  \"status\": \"PENDING\"\n}"
+              "raw": "{\n  \"participantId\": 1,\n  \"eventId\": 1,\n  \"checkInTime\": \"2025-11-24T15:30:00\",\n  \"offlineSync\": false\n}"
             },
             "url": {
-              "raw": "http://localhost:8080/api/payments",
+              "raw": "http://localhost:8084/api/checkins",
               "protocol": "http",
               "host": ["localhost"],
-              "port": "8080",
-              "path": ["api", "payments"]
+              "port": "8084",
+              "path": ["api", "checkins"]
             }
-          }
+          },
+          "response": []
         },
         {
-          "name": "Process Payment",
+          "name": "Sync Offline Check-ins",
           "request": {
-            "method": "PATCH",
-            "header": [],
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "[\n  {\n    \"participantId\": 2,\n    \"eventId\": 1,\n    \"checkInTime\": \"2025-11-24T16:00:00\",\n    \"offlineSync\": true\n  },\n  {\n    \"participantId\": 3,\n    \"eventId\": 1,\n    \"checkInTime\": \"2025-11-24T16:15:00\",\n    \"offlineSync\": true\n  }\n]"
+            },
             "url": {
-              "raw": "http://localhost:8080/api/payments/1/process",
+              "raw": "http://localhost:8084/api/checkins/sync",
               "protocol": "http",
               "host": ["localhost"],
-              "port": "8080",
-              "path": ["api", "payments", "1", "process"]
+              "port": "8084",
+              "path": ["api", "checkins", "sync"]
             }
-          }
+          },
+          "response": []
         },
         {
-          "name": "Complete Payment",
+          "name": "Update Check-in",
           "request": {
-            "method": "PATCH",
-            "header": [],
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"participantId\": 1,\n  \"eventId\": 1,\n  \"checkInTime\": \"2025-11-24T15:45:00\",\n  \"offlineSync\": false\n}"
+            },
             "url": {
-              "raw": "http://localhost:8080/api/payments/1/complete",
+              "raw": "http://localhost:8084/api/checkins/1",
               "protocol": "http",
               "host": ["localhost"],
-              "port": "8080",
-              "path": ["api", "payments", "1", "complete"]
+              "port": "8084",
+              "path": ["api", "checkins", "1"]
             }
-          }
+          },
+          "response": []
+        },
+        {
+          "name": "Delete Check-in",
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "http://localhost:8084/api/checkins/1",
+              "protocol": "http",
+              "host": ["localhost"],
+              "port": "8084",
+              "path": ["api", "checkins", "1"]
+            }
+          },
+          "response": []
         }
       ]
     },
     {
-      "name": "🔔 Notifications",
+      "name": "📜 Certificates (Port 8084)",
+      "item": [
+        {
+          "name": "Validate Certificate",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "http://localhost:8084/api/certificates/validate/ABC123DEF456",
+              "protocol": "http",
+              "host": ["localhost"],
+              "port": "8084",
+              "path": ["api", "certificates", "validate", "ABC123DEF456"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Get Certificate by Participant",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "http://localhost:8084/api/certificates/participant/1",
+              "protocol": "http",
+              "host": ["localhost"],
+              "port": "8084",
+              "path": ["api", "certificates", "participant", "1"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Generate/View Certificate PDF",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "http://localhost:8084/api/certificates/participant/1/event/1",
+              "protocol": "http",
+              "host": ["localhost"],
+              "port": "8084",
+              "path": ["api", "certificates", "participant", "1", "event", "1"]
+            },
+            "description": "Abre o certificado PDF no navegador (Content-Disposition: inline). Requer check-in realizado."
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "🔔 Notifications (Port 8085)",
       "item": [
         {
           "name": "Get All Notifications",
@@ -446,13 +846,14 @@
             "method": "GET",
             "header": [],
             "url": {
-              "raw": "http://localhost:8080/api/notifications",
+              "raw": "http://localhost:8085/api/notifications",
               "protocol": "http",
               "host": ["localhost"],
-              "port": "8080",
+              "port": "8085",
               "path": ["api", "notifications"]
             }
-          }
+          },
+          "response": []
         },
         {
           "name": "Get Notification by ID",
@@ -460,13 +861,14 @@
             "method": "GET",
             "header": [],
             "url": {
-              "raw": "http://localhost:8080/api/notifications/1",
+              "raw": "http://localhost:8085/api/notifications/1",
               "protocol": "http",
               "host": ["localhost"],
-              "port": "8080",
+              "port": "8085",
               "path": ["api", "notifications", "1"]
             }
-          }
+          },
+          "response": []
         },
         {
           "name": "Get Notifications by User",
@@ -474,13 +876,14 @@
             "method": "GET",
             "header": [],
             "url": {
-              "raw": "http://localhost:8080/api/notifications/user/1",
+              "raw": "http://localhost:8085/api/notifications/user/1",
               "protocol": "http",
               "host": ["localhost"],
-              "port": "8080",
+              "port": "8085",
               "path": ["api", "notifications", "user", "1"]
             }
-          }
+          },
+          "response": []
         },
         {
           "name": "Get Unread Notifications",
@@ -488,13 +891,14 @@
             "method": "GET",
             "header": [],
             "url": {
-              "raw": "http://localhost:8080/api/notifications/user/1/unread",
+              "raw": "http://localhost:8085/api/notifications/user/1/unread",
               "protocol": "http",
               "host": ["localhost"],
-              "port": "8080",
+              "port": "8085",
               "path": ["api", "notifications", "user", "1", "unread"]
             }
-          }
+          },
+          "response": []
         },
         {
           "name": "Create Notification",
@@ -508,16 +912,17 @@
             ],
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"userId\": 1,\n  \"type\": \"ORDER_STATUS\",\n  \"message\": \"Seu pedido foi enviado!\",\n  \"read\": false\n}"
+              "raw": "{\n  \"userId\": 1,\n  \"type\": \"EVENT_REMINDER\",\n  \"message\": \"Lembrete: seu evento começa em 1 hora!\",\n  \"read\": false\n}"
             },
             "url": {
-              "raw": "http://localhost:8080/api/notifications",
+              "raw": "http://localhost:8085/api/notifications",
               "protocol": "http",
               "host": ["localhost"],
-              "port": "8080",
+              "port": "8085",
               "path": ["api", "notifications"]
             }
-          }
+          },
+          "response": []
         },
         {
           "name": "Mark as Read",
@@ -525,13 +930,29 @@
             "method": "PATCH",
             "header": [],
             "url": {
-              "raw": "http://localhost:8080/api/notifications/1/read",
+              "raw": "http://localhost:8085/api/notifications/1/read",
               "protocol": "http",
               "host": ["localhost"],
-              "port": "8080",
+              "port": "8085",
               "path": ["api", "notifications", "1", "read"]
             }
-          }
+          },
+          "response": []
+        },
+        {
+          "name": "Mark All as Read",
+          "request": {
+            "method": "PATCH",
+            "header": [],
+            "url": {
+              "raw": "http://localhost:8085/api/notifications/user/1/read-all",
+              "protocol": "http",
+              "host": ["localhost"],
+              "port": "8085",
+              "path": ["api", "notifications", "user", "1", "read-all"]
+            }
+          },
+          "response": []
         },
         {
           "name": "Delete Notification",
@@ -539,13 +960,134 @@
             "method": "DELETE",
             "header": [],
             "url": {
-              "raw": "http://localhost:8080/api/notifications/1",
+              "raw": "http://localhost:8085/api/notifications/1",
+              "protocol": "http",
+              "host": ["localhost"],
+              "port": "8085",
+              "path": ["api", "notifications", "1"]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "📊 Activity Logs (Port 8080)",
+      "item": [
+        {
+          "name": "Get All Logs",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "http://localhost:8080/api/activity-logs",
               "protocol": "http",
               "host": ["localhost"],
               "port": "8080",
-              "path": ["api", "notifications", "1"]
+              "path": ["api", "activity-logs"]
             }
-          }
+          },
+          "response": []
+        },
+        {
+          "name": "Get Logs by Event",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "http://localhost:8080/api/activity-logs/event/1",
+              "protocol": "http",
+              "host": ["localhost"],
+              "port": "8080",
+              "path": ["api", "activity-logs", "event", "1"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Get Logs by User",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "http://localhost:8080/api/activity-logs/user/1",
+              "protocol": "http",
+              "host": ["localhost"],
+              "port": "8080",
+              "path": ["api", "activity-logs", "user", "1"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Get Logs by Action",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "http://localhost:8080/api/activity-logs/action/CHECKIN_PERFORMED",
+              "protocol": "http",
+              "host": ["localhost"],
+              "port": "8080",
+              "path": ["api", "activity-logs", "action", "CHECKIN_PERFORMED"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Get Logs by Level",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "http://localhost:8080/api/activity-logs/level/ERROR",
+              "protocol": "http",
+              "host": ["localhost"],
+              "port": "8080",
+              "path": ["api", "activity-logs", "level", "ERROR"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Get Logs by Date Range",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "http://localhost:8080/api/activity-logs/range?start=2025-11-01T00:00:00&end=2025-12-31T23:59:59",
+              "protocol": "http",
+              "host": ["localhost"],
+              "port": "8080",
+              "path": ["api", "activity-logs", "range"],
+              "query": [
+                {
+                  "key": "start",
+                  "value": "2025-11-01T00:00:00"
+                },
+                {
+                  "key": "end",
+                  "value": "2025-12-31T23:59:59"
+                }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Get Log Statistics",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "http://localhost:8080/api/activity-logs/stats",
+              "protocol": "http",
+              "host": ["localhost"],
+              "port": "8080",
+              "path": ["api", "activity-logs", "stats"]
+            }
+          },
+          "response": []
         }
       ]
     }
