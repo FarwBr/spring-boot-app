@@ -206,11 +206,7 @@ function LoginPage({ onLogin }) {
                     <p>Não tem uma conta? <button onClick={() => setShowRegister(true)} className="link-button">Cadastre-se</button></p>
                 </div>
 
-                <div className="demo-credentials">
-                    <h3>🔑 Acesso Admin de Teste</h3>
-                    <p><strong>Email:</strong> admin@example.com</p>
-                    <p><strong>Senha:</strong> admin123</p>
-                </div>
+                {/* Removed demo admin credentials block */}
 
                 <div className="demo-credentials" style={{marginTop: '20px', borderColor: '#6366f1'}}>
                     <h3>🎓 Validar Certificado</h3>
