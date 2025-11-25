@@ -20,6 +20,7 @@ function EventsPage() {
     // Verificar se usuário é ADMIN
     const [user, setUser] = useState(null);
     const [isAdmin, setIsAdmin] = useState(false);
+    const [userParticipations, setUserParticipations] = useState([]);
     
     useEffect(() => {
         const userData = localStorage.getItem('user');
@@ -28,6 +29,10 @@ function EventsPage() {
                 const parsed = JSON.parse(userData);
                 setUser(parsed);
                 setIsAdmin(parsed?.role === 'ADMIN');
+                // Carregar participações do usuário se não for admin
+                if (parsed?.role !== 'ADMIN' && parsed?.id) {
+                    loadUserParticipations(parsed.id);
+                }
             } catch (e) {
                 console.error('Erro ao ler usuário do localStorage:', e);
             }
@@ -37,6 +42,18 @@ function EventsPage() {
     useEffect(() => {
         loadEvents();
     }, []);
+
+    const loadUserParticipations = async (userId) => {
+        try {
+            const response = await fetch(`http://177.44.248.75:8083/api/participants/user/${userId}`);
+            if (response.ok) {
+                const data = await response.json();
+                setUserParticipations(data);
+            }
+        } catch (err) {
+            console.error('Erro ao carregar participações:', err);
+        }
+    };
 
     const loadEvents = async () => {
         try {
@@ -157,6 +174,10 @@ function EventsPage() {
                 if (response.ok) {
                     alert('✅ Inscrição realizada com sucesso!\n\nVocê pode visualizar seus eventos em "🎫 Meus Eventos".');
                     loadEvents();
+                    // Recarregar participações após inscrição
+                    if (user?.id) {
+                        loadUserParticipations(user.id);
+                    }
                 } else {
                     const errorData = await response.json();
                     setError(errorData.message || 'Erro ao realizar inscrição');
@@ -174,6 +195,10 @@ function EventsPage() {
 
     const formatDateTime = (dateString) => {
         return new Date(dateString).toLocaleString('pt-BR');
+    };
+
+    const isUserEnrolled = (eventId) => {
+        return userParticipations.some(p => p.event?.id === eventId);
     };
 
     if (loading) {
@@ -336,21 +361,63 @@ function EventsPage() {
                                 </tr>
                             </thead>
                             <tbody>
-                                {events.map(event => (
-                                    <tr key={event.id}>
-                                        <td>
+                                {events.map(event => {
+                                    const enrolled = !isAdmin && isUserEnrolled(event.id);
+                                    return (
+                                    <tr key={event.id} style={{ position: 'relative' }}>
+                                        {enrolled && (
+                                            <td 
+                                                colSpan="7" 
+                                                style={{
+                                                    position: 'absolute',
+                                                    top: 0,
+                                                    left: 0,
+                                                    right: 0,
+                                                    bottom: 0,
+                                                    display: 'flex',
+                                                    alignItems: 'center',
+                                                    justifyContent: 'center',
+                                                    fontSize: '48px',
+                                                    fontWeight: 'bold',
+                                                    color: 'rgba(102, 126, 234, 0.15)',
+                                                    pointerEvents: 'none',
+                                                    zIndex: 1,
+                                                    textTransform: 'uppercase',
+                                                    letterSpacing: '3px'
+                                                }}
+                                            >
+                                                ✓ INSCRITO
+                                            </td>
+                                        )}
+                                        <td style={{ position: 'relative', zIndex: 2 }}>
                                             <strong>{event.name}</strong>
+                                            {enrolled && (
+                                                <span 
+                                                    style={{
+                                                        display: 'inline-block',
+                                                        marginLeft: '8px',
+                                                        padding: '2px 8px',
+                                                        background: '#667eea',
+                                                        color: 'white',
+                                                        fontSize: '11px',
+                                                        borderRadius: '12px',
+                                                        fontWeight: 'bold'
+                                                    }}
+                                                >
+                                                    ✓ INSCRITO
+                                                </span>
+                                            )}
                                             {event.description && (
                                                 <div style={{fontSize: '12px', color: '#666'}}>
                                                     {event.description}
                                                 </div>
                                             )}
                                         </td>
-                                        <td>📍 {event.location}</td>
-                                        <td>{formatDateTime(event.startTime)}</td>
-                                        <td>{formatDateTime(event.endTime)}</td>
-                                        <td>{event.maxCapacity}</td>
-                                        <td>
+                                        <td style={{ position: 'relative', zIndex: 2 }}>📍 {event.location}</td>
+                                        <td style={{ position: 'relative', zIndex: 2 }}>{formatDateTime(event.startTime)}</td>
+                                        <td style={{ position: 'relative', zIndex: 2 }}>{formatDateTime(event.endTime)}</td>
+                                        <td style={{ position: 'relative', zIndex: 2 }}>{event.maxCapacity}</td>
+                                        <td style={{ position: 'relative', zIndex: 2 }}>
                                             <span className={`badge ${event.active ? 'badge-success' : 'badge-danger'}`}>
                                                 {event.active ? '✅ Ativo' : '❌ Inativo'}
                                             </span>
@@ -363,7 +430,7 @@ function EventsPage() {
                                                 </span>
                                             )}
                                         </td>
-                                        <td>
+                                        <td style={{ position: 'relative', zIndex: 2 }}>
                                             {isAdmin ? (
                                                 <>
                                                     <button 
@@ -401,15 +468,21 @@ function EventsPage() {
                                                 <button 
                                                     onClick={() => handleRegisterToEvent(event.id)}
                                                     className="btn btn-success btn-sm"
-                                                    disabled={!event.active || event.finished || loading}
-                                                    title="Inscrever-se neste evento"
+                                                    disabled={!event.active || event.finished || loading || enrolled}
+                                                    title={enrolled ? 'Você já está inscrito' : 'Inscrever-se neste evento'}
+                                                    style={enrolled ? {
+                                                        background: '#6c757d',
+                                                        cursor: 'not-allowed',
+                                                        opacity: 0.6
+                                                    } : {}}
                                                 >
-                                                    {event.active && !event.finished ? '🎫 Inscrever-se' : '🚫 Indisponível'}
+                                                    {enrolled ? '✓ Inscrito' : (event.active && !event.finished ? '🎫 Inscrever-se' : '🚫 Indisponível')}
                                                 </button>
                                             )}
                                         </td>
                                     </tr>
-                                ))}
+                                    );
+                                })}
                             </tbody>
                         </table>
                     </div>
