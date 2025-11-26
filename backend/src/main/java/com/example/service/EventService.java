@@ -26,6 +26,9 @@ public class EventService {
     @Autowired
     private EmailService emailService;
     
+    @Autowired
+    private NotificationService notificationService;
+    
     public List<Event> getAllEvents() {
         return eventRepository.findAll();
     }
@@ -127,6 +130,15 @@ public class EventService {
                             event.getName(),
                             certificatePdf
                         );
+                        
+                        // Enviar notificação de evento finalizado
+                        if (participant.getUser() != null) {
+                            try {
+                                notificationService.notifyEventFinished(participant.getUser(), event);
+                            } catch (Exception e) {
+                                System.err.println("Erro ao enviar notificação: " + e.getMessage());
+                            }
+                        }
                         
                         sent++;
                         System.out.println("✅ Certificado enviado para: " + email);

@@ -38,6 +38,9 @@ public class ParticipantService {
     @Autowired
     private EmailService emailService;
     
+    @Autowired
+    private NotificationService notificationService;
+    
     @Autowired(required = false)
     private ActivityLogService activityLogService;
     
@@ -94,7 +97,16 @@ public class ParticipantService {
         participant.setEvent(event);
         participant.setIsWalkIn(false);
         
-        return participantRepository.save(participant);
+        Participant saved = participantRepository.save(participant);
+        
+        // Enviar notificação de inscrição confirmada
+        try {
+            notificationService.notifyEventRegistration(user, event);
+        } catch (Exception e) {
+            System.err.println("Erro ao enviar notificação de inscrição: " + e.getMessage());
+        }
+        
+        return saved;
     }
     
     public Participant createParticipant(Long eventId, Participant participant) {
@@ -191,6 +203,13 @@ public class ParticipantService {
                 saved.getUser(), saved.getEvent(), details);
         } catch (Exception e) {
             System.err.println("Erro ao registrar log: " + e.getMessage());
+        }
+        
+        // Enviar notificação de check-in
+        try {
+            notificationService.notifyCheckIn(saved, saved.getEvent());
+        } catch (Exception e) {
+            System.err.println("Erro ao enviar notificação de check-in: " + e.getMessage());
         }
         
         // Enviar certificado por email de forma assíncrona (não bloqueia o check-in)
