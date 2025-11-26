@@ -13,7 +13,7 @@ export const notificationService = {
         return response.data;
     },
 
-    getNotificationsByUserId: async (userId) => {
+    getNotificationsByUser: async (userId) => {
         const response = await axios.get(`${API_URL}/notifications/user/${userId}`);
         return response.data;
     },
@@ -33,7 +33,7 @@ export const notificationService = {
         return response.data;
     },
 
-    markAllAsReadForUser: async (userId) => {
+    markAllAsRead: async (userId) => {
         await axios.patch(`${API_URL}/notifications/user/${userId}/read-all`);
     },
 

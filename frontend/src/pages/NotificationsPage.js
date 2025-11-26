@@ -5,19 +5,38 @@ function NotificationsPage() {
     const [notifications, setNotifications] = useState([]);
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState(null);
+    const [user, setUser] = useState(null);
+    const [filter, setFilter] = useState('all'); // 'all', 'unread', 'read'
 
     useEffect(() => {
-        loadNotifications();
+        const userData = localStorage.getItem('user');
+        if (userData) {
+            try {
+                const parsed = JSON.parse(userData);
+                setUser(parsed);
+            } catch (e) {
+                console.error('Erro ao ler usuário:', e);
+            }
+        }
     }, []);
 
+    useEffect(() => {
+        if (user?.id) {
+            loadNotifications();
+        }
+    }, [user]);
+
     const loadNotifications = async () => {
+        if (!user?.id) return;
+        
         try {
             setLoading(true);
-            const data = await notificationService.getAllNotifications();
+            const data = await notificationService.getNotificationsByUser(user.id);
             setNotifications(data);
             setError(null);
         } catch (err) {
             setError('Erro ao carregar notificações');
+            console.error(err);
         } finally {
             setLoading(false);
         }
@@ -29,6 +48,16 @@ function NotificationsPage() {
             loadNotifications();
         } catch (err) {
             setError('Erro ao marcar como lida');
+        }
+    };
+
+    const handleMarkAllAsRead = async () => {
+        if (!user?.id) return;
+        try {
+            await notificationService.markAllAsRead(user.id);
+            loadNotifications();
+        } catch (err) {
+            setError('Erro ao marcar todas como lidas');
         }
     };
 
@@ -45,13 +74,24 @@ function NotificationsPage() {
 
     const getTypeBadge = (type) => {
         const badges = {
-            ORDER_STATUS: { class: 'badge-info', icon: '🛒', label: 'Pedido' },
-            PAYMENT_STATUS: { class: 'badge-success', icon: '💳', label: 'Pagamento' },
-            PROMOTION: { class: 'badge-warning', icon: '🎉', label: 'Promoção' },
+            CHECKIN_PERFORMED: { class: 'badge-success', icon: '✅', label: 'Check-in' },
+            EVENT_REMINDER: { class: 'badge-warning', icon: '⏰', label: 'Lembrete' },
+            EVENT_FINISHED: { class: 'badge-info', icon: '🎓', label: 'Evento Finalizado' },
+            CERTIFICATE_READY: { class: 'badge-success', icon: '📜', label: 'Certificado' },
+            EVENT_UPDATED: { class: 'badge-info', icon: '📝', label: 'Atualização' },
+            EVENT_CANCELLED: { class: 'badge-danger', icon: '❌', label: 'Cancelamento' },
             SYSTEM: { class: 'badge-info', icon: '⚙️', label: 'Sistema' }
         };
-        return badges[type] || { class: 'badge-info', icon: '🔔', label: 'Geral' };
+        return badges[type] || { class: 'badge-info', icon: '🔔', label: 'Notificação' };
     };
+
+    const filteredNotifications = notifications.filter(n => {
+        if (filter === 'unread') return !n.read;
+        if (filter === 'read') return n.read;
+        return true;
+    });
+
+    const unreadCount = notifications.filter(n => !n.read).length;
 
     if (loading) {
         return (
@@ -62,29 +102,70 @@ function NotificationsPage() {
         );
     }
 
+    if (!user) {
+        return (
+            <div className="page-header">
+                <h2>🔔 Notificações</h2>
+                <p style={{color: '#dc3545'}}>⚠️ Você precisa estar logado para ver suas notificações.</p>
+            </div>
+        );
+    }
+
     return (
         <div>
             <div className="page-header">
-                <h2>🔔 Gerenciamento de Notificações</h2>
-                <p>Visualize e gerencie todas as notificações do sistema</p>
+                <h2>🔔 Minhas Notificações</h2>
+                <p>Acompanhe atualizações sobre seus eventos, check-ins e certificados</p>
             </div>
             
             {error && <div className="alert alert-error">{error}</div>}
             
+            <div style={{marginBottom: '20px', display: 'flex', gap: '10px', flexWrap: 'wrap', alignItems: 'center'}}>
+                <button 
+                    className={`btn ${filter === 'all' ? 'btn-primary' : 'btn-secondary'}`}
+                    onClick={() => setFilter('all')}
+                >
+                    🔔 Todas ({notifications.length})
+                </button>
+                <button 
+                    className={`btn ${filter === 'unread' ? 'btn-primary' : 'btn-secondary'}`}
+                    onClick={() => setFilter('unread')}
+                >
+                    📬 Não Lidas ({unreadCount})
+                </button>
+                <button 
+                    className={`btn ${filter === 'read' ? 'btn-primary' : 'btn-secondary'}`}
+                    onClick={() => setFilter('read')}
+                >
+                    ✅ Lidas ({notifications.length - unreadCount})
+                </button>
+                {unreadCount > 0 && (
+                    <button 
+                        className="btn btn-success"
+                        onClick={handleMarkAllAsRead}
+                        style={{marginLeft: 'auto'}}
+                    >
+                        ✅ Marcar Todas como Lidas
+                    </button>
+                )}
+            </div>
+            
             <div className="card">
                 <div className="card-header">
-                    <h3 className="card-title">📋 Lista de Notificações</h3>
-                    <span className="badge badge-info">{notifications.length} notificações</span>
+                    <h3 className="card-title">📋 {filter === 'all' ? 'Todas' : filter === 'unread' ? 'Não Lidas' : 'Lidas'}</h3>
+                    <span className="badge badge-info">{filteredNotifications.length} notificações</span>
                 </div>
-                {notifications.length === 0 ? (
+                {filteredNotifications.length === 0 ? (
                     <div className="empty-state">
                         <div className="empty-state-icon">🔔</div>
-                        <h3 className="empty-state-title">Nenhuma notificação</h3>
-                        <p className="empty-state-description">As notificações aparecerão aqui</p>
+                        <h3 className="empty-state-title">Nenhuma notificação {filter === 'unread' ? 'não lida' : filter === 'read' ? 'lida' : ''}</h3>
+                        <p className="empty-state-description">
+                            {filter === 'unread' ? 'Você está em dia! 🎉' : 'As notificações aparecerão aqui'}
+                        </p>
                     </div>
                 ) : (
                     <div style={{display: 'flex', flexDirection: 'column', gap: '1rem', padding: '1rem'}}>
-                        {notifications.map(notification => {
+                        {filteredNotifications.map(notification => {
                             const typeBadge = getTypeBadge(notification.type);
                             return (
                                 <div 
